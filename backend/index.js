@@ -9,6 +9,7 @@ import { clerkMiddleware, requireAuth } from "@clerk/express";
 import cors from "cors";
 
 const app = express();
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(
   cors({
@@ -43,6 +44,9 @@ app.use(express.json());
 app.use("/users", userRouter);
 app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
+app.get("/health", (req, res) => {
+  res.status(200).json({ ok: true });
+});
 
 app.use((error, req, res, next) => {
   res.status(error.status || 500);
@@ -58,8 +62,8 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    app.listen(3000, () => {
-      console.log("Server is running on port 3000");
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   } catch (err) {
     console.error("Server startup aborted.");
