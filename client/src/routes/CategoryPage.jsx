@@ -13,9 +13,12 @@ const CategoryPage = () => {
     queryKey: ["posts", slug, page],
     queryFn: () =>
       axios
-        .get(
-          `${import.meta.env.VITE_API_URL}/posts${slug === "general" ? "" : `?cat=${slug}`}&page=${page}`,
-        )
+        .get(`${import.meta.env.VITE_API_URL}/posts`, {
+          params: {
+            ...(slug === "general" ? {} : { cat: slug }),
+            page,
+          },
+        })
         .then((res) => res.data),
   });
 

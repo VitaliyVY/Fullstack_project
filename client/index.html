@@ -15,7 +15,18 @@
     />
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <div id="root"><!--ssr-outlet--></div>
+    <script id="__REACT_QUERY_STATE__" type="application/json">
+      <!--ssr-state-->
+    </script>
+    <script>
+      const stateEl = document.getElementById("__REACT_QUERY_STATE__");
+      const rawState = stateEl?.textContent?.trim();
+      window.__REACT_QUERY_STATE__ =
+        rawState && !rawState.startsWith("<!--")
+          ? JSON.parse(rawState)
+          : undefined;
+    </script>
+    <script type="module" src="/src/entry-client.jsx"></script>
   </body>
 </html>

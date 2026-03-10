@@ -1,12 +1,13 @@
 import { useAuth, useUser } from "@clerk/clerk-react";
 import "react-quill-new/dist/quill.snow.css";
-import ReactQuill from "react-quill-new";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Upload from "../components/Upload";
+
+const ReactQuill = lazy(() => import("react-quill-new"));
 
 const Write = () => {
   const { isLoaded, isSignedIn } = useUser();
@@ -25,7 +26,7 @@ const Write = () => {
 
   const { getToken } = useAuth();
 
-  const { data: postData, isLoading: postLoading } = useQuery({
+  const { data: postData } = useQuery({
     queryKey: ["post", slug],
     queryFn: async () => {
       const res = await axios.get(
@@ -177,13 +178,21 @@ const Write = () => {
               ▶️
             </Upload>
           </div>
-          <ReactQuill
-            theme="snow"
-            className="flex-1 rounded-xl bg-white shadow-md"
-            value={value}
-            onChange={setValue}
-            readOnly={0 < progress && progress < 100}
-          />
+          <Suspense
+            fallback={
+              <div className="flex-1 rounded-xl bg-white shadow-md p-4 text-sm text-gray-500">
+                Loading editor...
+              </div>
+            }
+          >
+            <ReactQuill
+              theme="snow"
+              className="flex-1 rounded-xl bg-white shadow-md"
+              value={value}
+              onChange={setValue}
+              readOnly={0 < progress && progress < 100}
+            />
+          </Suspense>
         </div>
         <button
           disabled={mutation.isPending || (0 < progress && progress < 100)}

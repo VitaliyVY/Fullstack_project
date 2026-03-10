@@ -36,7 +36,7 @@ const TagPage = () => {
       {/* Tag Info */}
       <div className="flex flex-col gap-4">
         <h1 className="text-2xl md:text-4xl font-bold">
-          Articles tagged with "{slug}"
+          Articles tagged with &quot;{slug}&quot;
         </h1>
       </div>
 

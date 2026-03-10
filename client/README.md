@@ -1,8 +1,16 @@
-# React + Vite
+# Client (React + Vite SSR)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This frontend now runs with Vite SSR directly in the `client` app.
 
-Currently, two official plugins are available:
+## Commands
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- `npm run dev` - start SSR dev server
+- `npm run build` - build client bundle and SSR bundle
+- `npm run start` - run SSR server in production mode
+
+## Required Environment Variables
+
+- `VITE_API_URL`
+- `VITE_CLERK_PUBLISHABLE_KEY`
+- `VITE_IK_URL_ENDPOINT`
+- `VITE_IK_PUBLIC_KEY`
