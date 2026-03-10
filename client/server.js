@@ -15,6 +15,22 @@ const app = express();
 
 let vite;
 
+const escapeHtml = (value) =>
+  String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+const getRequestOrigin = (req) => {
+  const forwardedProto = req.headers["x-forwarded-proto"]?.split(",")[0];
+  const forwardedHost = req.headers["x-forwarded-host"]?.split(",")[0];
+  const proto = forwardedProto || req.protocol || "http";
+  const host = forwardedHost || req.get("host") || "localhost";
+  return `${proto}://${host}`;
+};
+
 if (!isProd) {
   vite = await createViteServer({
     root: __dirname,
@@ -42,6 +58,7 @@ if (!isProd) {
 
 app.use("*", async (req, res) => {
   const url = req.originalUrl;
+  const origin = getRequestOrigin(req);
 
   try {
     let template;
@@ -56,11 +73,29 @@ app.use("*", async (req, res) => {
       render = (await import("./dist/server/entry-server.js")).render;
     }
 
-    const { appHtml, queryState } = await render(url);
+    const { appHtml, queryState, metadata } = await render(url, { origin });
 
-    const html = template
-      .replace("<!--ssr-outlet-->", appHtml)
-      .replace("<!--ssr-state-->", queryState);
+    const replacements = {
+      "<!--ssr-title-->": escapeHtml(metadata?.title),
+      "<!--ssr-description-->": escapeHtml(metadata?.description),
+      "<!--ssr-canonical-->": escapeHtml(metadata?.canonical),
+      "<!--ssr-og-type-->": escapeHtml(metadata?.ogType),
+      "<!--ssr-og-title-->": escapeHtml(metadata?.ogTitle),
+      "<!--ssr-og-description-->": escapeHtml(metadata?.ogDescription),
+      "<!--ssr-og-image-->": escapeHtml(metadata?.ogImage),
+      "<!--ssr-og-url-->": escapeHtml(metadata?.ogUrl),
+      "<!--ssr-twitter-card-->": escapeHtml(metadata?.twitterCard),
+      "<!--ssr-twitter-title-->": escapeHtml(metadata?.twitterTitle),
+      "<!--ssr-twitter-description-->": escapeHtml(metadata?.twitterDescription),
+      "<!--ssr-twitter-image-->": escapeHtml(metadata?.twitterImage),
+      "<!--ssr-outlet-->": appHtml,
+      "<!--ssr-state-->": queryState,
+    };
+
+    const html = Object.entries(replacements).reduce(
+      (current, [placeholder, value]) => current.split(placeholder).join(value),
+      template,
+    );
 
     res.status(200).setHeader("Content-Type", "text/html").end(html);
   } catch (error) {

@@ -10,17 +10,20 @@ import { ToastContainer } from "react-toastify";
 import AppRoutes from "./AppRoutes.jsx";
 import { createQueryClient } from "./lib/queryClient.js";
 import { prefetchQueriesForUrl } from "./ssr/prefetchQueries.js";
+import { getMetadataForUrl } from "./ssr/metadata.js";
 import "./index.css";
 import "react-toastify/dist/ReactToastify.css";
 
 const serializeState = (state) =>
   JSON.stringify(state).replace(/</g, "\\u003c");
 
-export const render = async (url) => {
+export const render = async (url, options = {}) => {
   const queryClient = createQueryClient();
   const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || "";
+  const origin = options.origin || "http://localhost";
 
   await prefetchQueriesForUrl(url, queryClient);
+  const metadata = getMetadataForUrl(url, queryClient, origin);
 
   const dehydratedState = dehydrate(queryClient);
   const appCore = (
@@ -45,5 +48,6 @@ export const render = async (url) => {
   return {
     appHtml,
     queryState: serializeState(dehydratedState),
+    metadata,
   };
 };
