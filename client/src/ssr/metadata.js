@@ -1,7 +1,9 @@
 import { matchPath } from "react-router-dom";
 
 const RESERVED_SLUGS = new Set([
+  "about",
   "posts",
+  "articles",
   "write",
   "categories",
   "authors",
@@ -29,7 +31,7 @@ const normalizeText = (value) => String(value || "").replace(/\s+/g, " ").trim()
 const limitText = (value, max = 160) => {
   const text = normalizeText(value);
   if (!text) return "";
-  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+  return text.length > max ? `${text.slice(0, max - 3)}...` : text;
 };
 
 const toAbsoluteUrl = (rawUrl, origin) => {
@@ -47,6 +49,14 @@ const isSingleSlugRoute = (pathname) => {
   const slug = match[1];
   if (!slug || RESERVED_SLUGS.has(slug)) return null;
   return decodeURIComponent(slug);
+};
+
+const getArticleSlug = (pathname) => {
+  const articleMatch = matchPath("/articles/:slug", pathname);
+  if (articleMatch?.params.slug) {
+    return decodeURIComponent(articleMatch.params.slug);
+  }
+  return isSingleSlugRoute(pathname);
 };
 
 export const getMetadataForUrl = (url, queryClient, origin) => {
@@ -72,6 +82,12 @@ export const getMetadataForUrl = (url, queryClient, origin) => {
     }
   }
 
+  if (pathname === "/about") {
+    title = "About Us | Lama Dev Blog App";
+    description =
+      "Learn about LamaLog, our editorial mission, and how we create practical content for developers.";
+  }
+
   const categoryMatch = matchPath("/categories/:slug", pathname);
   if (categoryMatch?.params.slug) {
     const slug = categoryMatch.params.slug;
@@ -94,7 +110,7 @@ export const getMetadataForUrl = (url, queryClient, origin) => {
     description = `Articles tagged with ${tag}.`;
   }
 
-  const articleSlug = isSingleSlugRoute(pathname);
+  const articleSlug = getArticleSlug(pathname);
   if (articleSlug) {
     const post = queryClient.getQueryData(["post", articleSlug]);
     if (post?.title) {
@@ -115,7 +131,12 @@ export const getMetadataForUrl = (url, queryClient, origin) => {
     description = "Create a new account.";
   }
 
-  const canonical = new URL(pathname, origin).toString();
+  const canonicalArticleSlug = getArticleSlug(pathname);
+  const canonicalPath =
+    canonicalArticleSlug && !pathname.startsWith("/articles/")
+      ? `/articles/${encodeURIComponent(canonicalArticleSlug)}`
+      : pathname;
+  const canonical = new URL(canonicalPath, origin).toString();
 
   return {
     title: limitText(title, 120) || DEFAULT_TITLE,

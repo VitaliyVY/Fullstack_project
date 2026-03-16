@@ -31,6 +31,14 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
+    linkedinUrl: {
+      type: String,
+      default: "",
+    },
+    githubUrl: {
+      type: String,
+      default: "",
+    },
     savedPosts: {
       type: [String],
       default: [],

@@ -1,6 +1,21 @@
 import { IKImage } from "imagekitio-react";
 
 const Image = ({ src, className, w, h, alt }) => {
+  const isAbsoluteUrl = typeof src === "string" && /^https?:\/\//i.test(src);
+
+  if (isAbsoluteUrl) {
+    return (
+      <img
+        src={src}
+        className={className}
+        loading="lazy"
+        alt={alt}
+        width={w}
+        height={h}
+      />
+    );
+  }
+
   return (
     <IKImage
       urlEndpoint={import.meta.env.VITE_IK_URL_ENDPOINT}

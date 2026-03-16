@@ -29,8 +29,10 @@ export const clerkWebHook = async (req, res) => {
     const newUser = new User({
       clerkUserId: evt.data.id,
       username: evt.data.username || evt.data.email_addresses[0].email_address,
+      firstName: evt.data.first_name || "",
+      lastName: evt.data.last_name || "",
       email: evt.data.email_addresses[0].email_address,
-      img: evt.data.profile_img_url,
+      img: evt.data.image_url || evt.data.profile_image_url || "",
     });
 
     await newUser.save();

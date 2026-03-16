@@ -24,6 +24,38 @@ const getCategoryDisplay = (cat) => {
   return categories[cat] || cat;
 };
 
+const getAuthorDisplayName = (user) => {
+  if (user?.firstName && user?.lastName) {
+    return `${user.firstName} ${user.lastName}`;
+  }
+  return user?.username || "Unknown author";
+};
+
+const getShortBio = (bio) => {
+  const normalized = String(bio || "").replace(/\s+/g, " ").trim();
+  if (!normalized) {
+    return "Автор ще не додав коротку біографію.";
+  }
+  return normalized;
+};
+
+const formatDate = (dateValue) => {
+  if (!dateValue) {
+    return "-";
+  }
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+
+  return new Intl.DateTimeFormat("uk-UA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+};
+
 const SinglePostPage = () => {
   const { slug } = useParams();
 
@@ -36,7 +68,8 @@ const SinglePostPage = () => {
   if (error) return "Something went wrong!" + error.message;
   if (!data) return "Post not found!";
 
-  const authorName = data.user?.username || "Unknown author";
+  const authorName = getAuthorDisplayName(data.user);
+  const authorBio = getShortBio(data.user?.bio);
 
   return (
     <div className="flex flex-col gap-8">
@@ -84,38 +117,60 @@ const SinglePostPage = () => {
         {/* menu */}
         <div className="px-4 h-max sticky top-8">
           <h1 className="mb-4 text-sm font-medium">Author</h1>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-8">
-              {data.user?.img && (
+          <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 p-4">
+            <div className="flex items-center gap-3">
+              {data.user?.img ? (
                 <Image
                   src={data.user.img}
                   className="w-12 h-12 rounded-full object-cover"
                   w="48"
                   h="48"
                 />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-700">
+                  {authorName.slice(0, 1).toUpperCase()}
+                </div>
               )}
               {data.user?.username ? (
                 <Link
-                  className="text-blue-800"
-                  to={`/posts?author=${data.user.username}`}
+                  className="text-blue-800 font-medium"
+                  to={`/authors/${data.user.username}`}
                 >
                   {authorName}
                 </Link>
               ) : (
-                <span className="text-blue-800">{authorName}</span>
+                <span className="text-blue-800 font-medium">{authorName}</span>
               )}
             </div>
-            <p className="text-sm text-gray-500">
-              Lorem ipsum dolor sit amet consectetur
-            </p>
-            <div className="flex gap-2">
-              <Link>
-                <Image src="facebook.svg" />
-              </Link>
-              <Link>
-                <Image src="instagram.svg" />
-              </Link>
+            <p className="text-sm text-gray-600">{authorBio}</p>
+            <div className="flex flex-col gap-1 text-sm text-gray-500">
+              <span>Дата публікації: {formatDate(data.createdAt)}</span>
+              <span>Останнє оновлення: {formatDate(data.updatedAt)}</span>
             </div>
+            {(data.user?.linkedinUrl || data.user?.githubUrl) && (
+              <div className="flex items-center gap-3 text-sm">
+                {data.user?.linkedinUrl && (
+                  <a
+                    href={data.user.linkedinUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline text-blue-700"
+                  >
+                    LinkedIn
+                  </a>
+                )}
+                {data.user?.githubUrl && (
+                  <a
+                    href={data.user.githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline text-blue-700"
+                  >
+                    GitHub
+                  </a>
+                )}
+              </div>
+            )}
           </div>
           <PostMenuActions post={data} />
           <h1 className="mt-8 mb-4 text-sm font-medium">Categories</h1>
