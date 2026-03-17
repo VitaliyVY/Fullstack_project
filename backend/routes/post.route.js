@@ -6,6 +6,7 @@ import {
   deletePost,
   updatePost,
   uploadAuth,
+  uploadConfig,
   featurePost,
 } from "../controllers/post.controller.js";
 import increaseVisit from "../middlewares/increaseVisit.js";
@@ -13,6 +14,7 @@ import increaseVisit from "../middlewares/increaseVisit.js";
 const router = express.Router();
 
 router.get("/upload-auth", uploadAuth);
+router.get("/upload-config", uploadConfig);
 
 router.get("/", getPosts);
 router.get("/:slug", increaseVisit, getPost);

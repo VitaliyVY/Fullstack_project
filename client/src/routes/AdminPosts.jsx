@@ -35,7 +35,10 @@ const AdminPosts = () => {
             <p className="text-gray-600">By {post.user?.username}</p>
             <p className="text-sm text-gray-500">Category: {post.category}</p>
             <div className="mt-2">
-              <Link to={`/${post.slug}`} className="text-blue-500 mr-4">
+              <Link
+                to={`/articles/${post.slug}`}
+                className="text-blue-500 mr-4"
+              >
                 View
               </Link>
               <Link to={`/write/${post.slug}`} className="text-green-500 mr-4">

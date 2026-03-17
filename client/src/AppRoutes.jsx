@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout.jsx";
 import Homepage from "./routes/Homepage.jsx";
+import AboutPage from "./routes/AboutPage.jsx";
 import PostListPage from "./routes/PostListPage.jsx";
 import SinglePostPage from "./routes/SinglePostPage.jsx";
 import CategoryPage from "./routes/CategoryPage.jsx";
@@ -10,6 +11,7 @@ import TagPage from "./routes/TagPage.jsx";
 
 const Write = lazy(() => import("./routes/Write.jsx"));
 const AdminPosts = lazy(() => import("./routes/AdminPosts.jsx"));
+const AdminAuthors = lazy(() => import("./routes/AdminAuthors.jsx"));
 const LoginPage = lazy(() => import("./routes/LoginPage.jsx"));
 const RegisterPage = lazy(() => import("./routes/RegisterPage.jsx"));
 
@@ -26,7 +28,9 @@ const AppRoutes = () => {
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Homepage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/posts" element={<PostListPage />} />
+        <Route path="/articles/:slug" element={<SinglePostPage />} />
         <Route path="/:slug" element={<SinglePostPage />} />
         <Route
           path="/write"
@@ -52,6 +56,14 @@ const AppRoutes = () => {
           element={
             <LazyRoute>
               <AdminPosts />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/admin/authors"
+          element={
+            <LazyRoute>
+              <AdminAuthors />
             </LazyRoute>
           }
         />

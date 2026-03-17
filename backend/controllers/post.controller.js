@@ -71,7 +71,7 @@ export const getPosts = async (req, res) => {
   }
 
   const posts = await Post.find(query)
-    .populate("user", "username")
+    .populate("user", "username firstName lastName img")
     .sort(sortObj)
     .limit(limit)
     .skip((page - 1) * limit);
@@ -79,13 +79,13 @@ export const getPosts = async (req, res) => {
   const totalPosts = await Post.countDocuments(query);
   const hasMore = page * limit < totalPosts;
 
-  res.status(200).json({ posts, hasMore });
+  res.status(200).json({ posts, hasMore, totalPosts });
 };
 
 export const getPost = async (req, res) => {
   const post = await Post.findOne({ slug: req.params.slug }).populate(
     "user",
-    "username img",
+    "username firstName lastName img bio linkedinUrl githubUrl",
   );
   res.status(200).json(post);
 };
@@ -226,4 +226,15 @@ const imagekit = new ImageKit({
 export const uploadAuth = async (req, res) => {
   const result = imagekit.getAuthenticationParameters();
   res.send(result);
+};
+
+export const uploadConfig = async (req, res) => {
+  if (!process.env.IK_PUBLIC_KEY || !process.env.IK_URL_ENDPOINT) {
+    return res.status(500).json("Image upload config is missing");
+  }
+
+  res.status(200).json({
+    publicKey: process.env.IK_PUBLIC_KEY,
+    urlEndpoint: process.env.IK_URL_ENDPOINT,
+  });
 };

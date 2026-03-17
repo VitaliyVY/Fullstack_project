@@ -3,12 +3,14 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Homepage from "./routes/Homepage.jsx";
+import AboutPage from "./routes/AboutPage.jsx";
 import PostListPage from "./routes/PostListPage.jsx";
 import Write from "./routes/Write.jsx";
 import LoginPage from "./routes/LoginPage.jsx";
 import RegisterPage from "./routes/RegisterPage.jsx";
 import SinglePostPage from "./routes/SinglePostPage.jsx";
 import AdminPosts from "./routes/AdminPosts.jsx";
+import AdminAuthors from "./routes/AdminAuthors.jsx";
 import CategoryPage from "./routes/CategoryPage.jsx";
 import AuthorPage from "./routes/AuthorPage.jsx";
 import TagPage from "./routes/TagPage.jsx";
@@ -35,8 +37,16 @@ const router = createBrowserRouter([
         element: <Homepage />,
       },
       {
+        path: "/about",
+        element: <AboutPage />,
+      },
+      {
         path: "/posts",
         element: <PostListPage />,
+      },
+      {
+        path: "/articles/:slug",
+        element: <SinglePostPage />,
       },
       {
         path: "/:slug",
@@ -65,6 +75,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/posts",
         element: <AdminPosts />,
+      },
+      {
+        path: "/admin/authors",
+        element: <AdminAuthors />,
       },
       {
         path: "/login",

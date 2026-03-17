@@ -2,7 +2,9 @@ import axios from "axios";
 import { matchPath } from "react-router-dom";
 
 const RESERVED_SLUGS = new Set([
+  "about",
   "posts",
+  "articles",
   "write",
   "categories",
   "authors",
@@ -72,7 +74,16 @@ const isSingleSlugRoute = (pathname) => {
   if (!match) return null;
   const slug = match[1];
   if (!slug || RESERVED_SLUGS.has(slug)) return null;
-  return slug;
+  return decodeURIComponent(slug);
+};
+
+const getArticleSlug = (pathname) => {
+  const articleMatch = matchPath("/articles/:slug", pathname);
+  if (articleMatch?.params.slug) {
+    return decodeURIComponent(articleMatch.params.slug);
+  }
+
+  return isSingleSlugRoute(pathname);
 };
 
 export const prefetchQueriesForUrl = async (url, queryClient) => {
@@ -148,7 +159,7 @@ export const prefetchQueriesForUrl = async (url, queryClient) => {
     );
   }
 
-  const articleSlug = isSingleSlugRoute(pathname);
+  const articleSlug = getArticleSlug(pathname);
   if (articleSlug) {
     let post = null;
 
