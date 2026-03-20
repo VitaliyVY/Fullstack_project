@@ -50,6 +50,13 @@ const getAuthorSummary = (user) => {
   return parts.join(", ");
 };
 
+const normalizeArticleHtml = (html) =>
+  String(html || "")
+    .replace(/writing-mode\s*:[^;"']*;?/gi, "")
+    .replace(/text-orientation\s*:[^;"']*;?/gi, "")
+    .replace(/style="\s*"/gi, "")
+    .replace(/style='\s*'/gi, "");
+
 const formatDate = (dateValue) => {
   if (!dateValue) {
     return "-";
@@ -91,6 +98,7 @@ const SinglePostPage = () => {
     { label: "X", url: data.user?.twitterUrl },
     { label: "Website", url: data.user?.websiteUrl },
   ].filter((item) => item.url);
+  const normalizedContent = normalizeArticleHtml(data.content);
 
   return (
     <div className="flex flex-col gap-8">
@@ -130,11 +138,11 @@ const SinglePostPage = () => {
 
       <div className="flex flex-col md:flex-row gap-12 items-start">
         <div
-          className="lg:text-lg min-w-0 flex-1 text-justify break-words [&_*]:max-w-full [&_*]:break-words [&_img]:h-auto [&_iframe]:w-full"
-          dangerouslySetInnerHTML={{ __html: data.content }}
+          className="lg:text-lg min-w-0 w-full md:w-[calc(100%-20rem)] lg:w-[calc(100%-24rem)] text-justify break-words [&_*]:max-w-full [&_*]:break-words [&_img]:h-auto [&_iframe]:w-full"
+          dangerouslySetInnerHTML={{ __html: normalizedContent }}
         />
 
-        <div className="w-full md:w-80 lg:w-96 md:flex-shrink-0 md:sticky md:top-8 px-4">
+        <div className="w-full md:w-80 lg:w-96 md:flex-shrink-0 md:sticky md:top-8 px-4 break-words">
           <h1 className="mb-4 text-sm font-medium">Author</h1>
           <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 p-4">
             <div className="flex items-center gap-3">
