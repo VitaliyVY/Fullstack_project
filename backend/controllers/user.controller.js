@@ -2,14 +2,23 @@ import getOrCreateUser from "../lib/getOrCreateUser.js";
 import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
 
-const PROFILE_FIELDS = [
+const PROFILE_STRING_FIELDS = [
   "firstName",
   "lastName",
   "bio",
+  "fullBio",
   "img",
   "linkedinUrl",
   "githubUrl",
+  "twitterUrl",
+  "websiteUrl",
+  "jobTitle",
+  "alumniOf",
 ];
+
+const MAX_SHORT_BIO_LENGTH = 320;
+const MAX_FULL_BIO_LENGTH = 3000;
+const MAX_LIST_ITEMS = 20;
 
 const normalizeText = (value) => String(value || "").trim();
 
@@ -28,21 +37,86 @@ const isValidOptionalUrl = (url) => {
   }
 };
 
+const toUniqueList = (input) => {
+  const source = Array.isArray(input) ? input : String(input || "").split(/[\n,]/);
+  const seen = new Set();
+  const values = [];
+
+  for (const raw of source) {
+    const value = normalizeText(raw);
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    values.push(value);
+    if (values.length >= MAX_LIST_ITEMS) break;
+  }
+
+  return values;
+};
+
 const sanitizeProfilePayload = (body) => {
   const updates = {};
 
-  for (const field of PROFILE_FIELDS) {
+  for (const field of PROFILE_STRING_FIELDS) {
     if (typeof body[field] === "string") {
       updates[field] = normalizeText(body[field]);
     }
   }
 
-  if (typeof updates.bio === "string" && updates.bio.length > 320) {
-    updates.bio = updates.bio.slice(0, 320);
+  if (typeof updates.bio === "string" && updates.bio.length > MAX_SHORT_BIO_LENGTH) {
+    updates.bio = updates.bio.slice(0, MAX_SHORT_BIO_LENGTH);
+  }
+
+  if (
+    typeof updates.fullBio === "string" &&
+    updates.fullBio.length > MAX_FULL_BIO_LENGTH
+  ) {
+    updates.fullBio = updates.fullBio.slice(0, MAX_FULL_BIO_LENGTH);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, "expertise")) {
+    updates.expertise = toUniqueList(body.expertise);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, "awards")) {
+    updates.awards = toUniqueList(body.awards);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, "yearsExperience")) {
+    const raw = body.yearsExperience;
+    if (raw === "" || raw == null) {
+      updates.yearsExperience = null;
+    } else {
+      const parsed = Number(raw);
+      if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 80) {
+        updates.yearsExperience = Math.floor(parsed);
+      }
+    }
   }
 
   return updates;
 };
+
+const buildPublicProfileResponse = (user, postCount) => ({
+  _id: user._id,
+  username: user.username,
+  email: user.email || "",
+  firstName: user.firstName || "",
+  lastName: user.lastName || "",
+  bio: user.bio || "",
+  fullBio: user.fullBio || "",
+  img: user.img || "",
+  linkedinUrl: user.linkedinUrl || "",
+  githubUrl: user.githubUrl || "",
+  twitterUrl: user.twitterUrl || "",
+  websiteUrl: user.websiteUrl || "",
+  jobTitle: user.jobTitle || "",
+  yearsExperience:
+    typeof user.yearsExperience === "number" ? user.yearsExperience : null,
+  expertise: Array.isArray(user.expertise) ? user.expertise : [],
+  awards: Array.isArray(user.awards) ? user.awards : [],
+  alumniOf: user.alumniOf || "",
+  postCount,
+});
 
 export const getUserSavedPosts = async (req, res) => {
   const clerkUserId = req.auth.userId;
@@ -71,18 +145,7 @@ export const getCurrentUserProfile = async (req, res) => {
     }
 
     const postCount = await Post.countDocuments({ user: user._id });
-
-    res.status(200).json({
-      _id: user._id,
-      username: user.username,
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      bio: user.bio || "",
-      img: user.img || "",
-      linkedinUrl: user.linkedinUrl || "",
-      githubUrl: user.githubUrl || "",
-      postCount,
-    });
+    res.status(200).json(buildPublicProfileResponse(user, postCount));
   } catch (err) {
     res.status(500).json(err);
   }
@@ -165,6 +228,13 @@ export const updateCurrentUserProfile = async (req, res) => {
       return res.status(400).json("First name and last name are required");
     }
 
+    if (
+      Object.prototype.hasOwnProperty.call(req.body || {}, "yearsExperience") &&
+      !Object.prototype.hasOwnProperty.call(updates, "yearsExperience")
+    ) {
+      return res.status(400).json("Years of experience must be between 0 and 80");
+    }
+
     if (!isValidOptionalUrl(updates.linkedinUrl)) {
       return res.status(400).json("Invalid LinkedIn URL");
     }
@@ -173,17 +243,22 @@ export const updateCurrentUserProfile = async (req, res) => {
       return res.status(400).json("Invalid GitHub URL");
     }
 
+    if (!isValidOptionalUrl(updates.twitterUrl)) {
+      return res.status(400).json("Invalid X/Twitter URL");
+    }
+
+    if (!isValidOptionalUrl(updates.websiteUrl)) {
+      return res.status(400).json("Invalid website URL");
+    }
+
     await user.updateOne({ $set: updates });
 
     const updatedUser = await User.findById(user._id).select(
-      "-clerkUserId -email -savedPosts",
+      "-clerkUserId -savedPosts",
     );
     const postCount = await Post.countDocuments({ user: user._id });
 
-    res.status(200).json({
-      ...updatedUser.toObject(),
-      postCount,
-    });
+    res.status(200).json(buildPublicProfileResponse(updatedUser, postCount));
   } catch (err) {
     res.status(500).json(err);
   }
@@ -194,7 +269,7 @@ export const getUserByUsername = async (req, res) => {
 
   try {
     const user = await User.findOne({ username })
-      .select("-clerkUserId -email -savedPosts")
+      .select("-clerkUserId -savedPosts")
       .lean();
 
     if (!user) {
@@ -202,11 +277,7 @@ export const getUserByUsername = async (req, res) => {
     }
 
     const postCount = await Post.countDocuments({ user: user._id });
-
-    res.status(200).json({
-      ...user,
-      postCount,
-    });
+    res.status(200).json(buildPublicProfileResponse(user, postCount));
   } catch (err) {
     res.status(500).json(err);
   }

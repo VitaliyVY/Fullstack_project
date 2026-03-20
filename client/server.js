@@ -23,6 +23,12 @@ const escapeHtml = (value) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
+const serializeJsonForHtml = (value) =>
+  JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+
 const getRequestOrigin = (req) => {
   const forwardedProto = req.headers["x-forwarded-proto"]?.split(",")[0];
   const forwardedHost = req.headers["x-forwarded-host"]?.split(",")[0];
@@ -74,6 +80,14 @@ app.use("*", async (req, res) => {
     }
 
     const { appHtml, queryState, metadata } = await render(url, { origin });
+    const structuredDataHtml = Array.isArray(metadata?.structuredData)
+      ? metadata.structuredData
+          .map(
+            (item) =>
+              `<script type="application/ld+json">${serializeJsonForHtml(item)}</script>`,
+          )
+          .join("")
+      : "";
 
     const replacements = {
       "<!--ssr-title-->": escapeHtml(metadata?.title),
@@ -88,6 +102,7 @@ app.use("*", async (req, res) => {
       "<!--ssr-twitter-title-->": escapeHtml(metadata?.twitterTitle),
       "<!--ssr-twitter-description-->": escapeHtml(metadata?.twitterDescription),
       "<!--ssr-twitter-image-->": escapeHtml(metadata?.twitterImage),
+      "<!--ssr-structured-data-->": structuredDataHtml,
       "<!--ssr-outlet-->": appHtml,
       "<!--ssr-state-->": queryState,
     };

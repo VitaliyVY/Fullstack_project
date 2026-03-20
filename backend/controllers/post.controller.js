@@ -85,7 +85,7 @@ export const getPosts = async (req, res) => {
 export const getPost = async (req, res) => {
   const post = await Post.findOne({ slug: req.params.slug }).populate(
     "user",
-    "username firstName lastName img bio linkedinUrl githubUrl",
+    "username firstName lastName img bio fullBio linkedinUrl githubUrl twitterUrl websiteUrl email jobTitle yearsExperience expertise awards alumniOf",
   );
   res.status(200).json(post);
 };

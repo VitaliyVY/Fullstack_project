@@ -34,9 +34,20 @@ const getAuthorDisplayName = (user) => {
 const getShortBio = (bio) => {
   const normalized = String(bio || "").replace(/\s+/g, " ").trim();
   if (!normalized) {
-    return "Автор ще не додав коротку біографію.";
+    return "Author has not added a short bio yet.";
   }
   return normalized;
+};
+
+const getAuthorSummary = (user) => {
+  const parts = [];
+  if (user?.jobTitle) {
+    parts.push(user.jobTitle);
+  }
+  if (typeof user?.yearsExperience === "number") {
+    parts.push(`${user.yearsExperience}+ years of experience`);
+  }
+  return parts.join(", ");
 };
 
 const formatDate = (dateValue) => {
@@ -70,10 +81,19 @@ const SinglePostPage = () => {
 
   const authorName = getAuthorDisplayName(data.user);
   const authorBio = getShortBio(data.user?.bio);
+  const authorSummary = getAuthorSummary(data.user);
+  const authorIntro = authorSummary
+    ? `Author: ${authorName} - ${authorSummary}.`
+    : `Author: ${authorName}.`;
+  const socialLinks = [
+    { label: "LinkedIn", url: data.user?.linkedinUrl },
+    { label: "GitHub", url: data.user?.githubUrl },
+    { label: "X", url: data.user?.twitterUrl },
+    { label: "Website", url: data.user?.websiteUrl },
+  ].filter((item) => item.url);
 
   return (
     <div className="flex flex-col gap-8">
-      {/* detail */}
       <div className="flex gap-8 min-w-0">
         <div className="lg:w-3/5 min-w-0 flex flex-col gap-8">
           <h1 className="text-xl md:text-3xl xl:text-4xl 2xl:text-5xl font-semibold break-words [overflow-wrap:anywhere]">
@@ -107,14 +127,13 @@ const SinglePostPage = () => {
           </div>
         )}
       </div>
-      {/* content */}
+
       <div className="flex flex-col md:flex-row gap-12 justify-between">
-        {/* text */}
         <div
           className="lg:text-lg min-w-0 flex-1 text-justify break-words [overflow-wrap:anywhere] [&_*]:max-w-full [&_*]:break-words [&_*]:[overflow-wrap:anywhere] [&_img]:h-auto [&_iframe]:w-full"
           dangerouslySetInnerHTML={{ __html: data.content }}
         />
-        {/* menu */}
+
         <div className="px-4 h-max sticky top-8">
           <h1 className="mb-4 text-sm font-medium">Author</h1>
           <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 p-4">
@@ -142,33 +161,33 @@ const SinglePostPage = () => {
                 <span className="text-blue-800 font-medium">{authorName}</span>
               )}
             </div>
+            <p className="text-sm text-gray-700">{authorIntro}</p>
             <p className="text-sm text-gray-600">{authorBio}</p>
+            {data.user?.username && (
+              <Link
+                to={`/authors/${data.user.username}`}
+                className="text-sm underline text-blue-700"
+              >
+                Author profile
+              </Link>
+            )}
             <div className="flex flex-col gap-1 text-sm text-gray-500">
-              <span>Дата публікації: {formatDate(data.createdAt)}</span>
-              <span>Останнє оновлення: {formatDate(data.updatedAt)}</span>
+              <span>Published: {formatDate(data.createdAt)}</span>
+              <span>Updated: {formatDate(data.updatedAt)}</span>
             </div>
-            {(data.user?.linkedinUrl || data.user?.githubUrl) && (
+            {socialLinks.length > 0 && (
               <div className="flex items-center gap-3 text-sm">
-                {data.user?.linkedinUrl && (
+                {socialLinks.map((item) => (
                   <a
-                    href={data.user.linkedinUrl}
+                    key={item.label}
+                    href={item.url}
                     target="_blank"
                     rel="noreferrer"
                     className="underline text-blue-700"
                   >
-                    LinkedIn
+                    {item.label}
                   </a>
-                )}
-                {data.user?.githubUrl && (
-                  <a
-                    href={data.user.githubUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline text-blue-700"
-                  >
-                    GitHub
-                  </a>
-                )}
+                ))}
               </div>
             )}
           </div>

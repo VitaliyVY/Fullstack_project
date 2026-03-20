@@ -31,6 +31,10 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
+    fullBio: {
+      type: String,
+      default: "",
+    },
     linkedinUrl: {
       type: String,
       default: "",
@@ -38,6 +42,35 @@ const userSchema = new Schema(
     githubUrl: {
       type: String,
       default: "",
+    },
+    twitterUrl: {
+      type: String,
+      default: "",
+    },
+    websiteUrl: {
+      type: String,
+      default: "",
+    },
+    jobTitle: {
+      type: String,
+      default: "Blog Author",
+    },
+    yearsExperience: {
+      type: Number,
+      default: null,
+      min: 0,
+    },
+    expertise: {
+      type: [String],
+      default: [],
+    },
+    awards: {
+      type: [String],
+      default: [],
+    },
+    alumniOf: {
+      type: String,
+      default: "Kyiv National University",
     },
     savedPosts: {
       type: [String],

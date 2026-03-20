@@ -18,13 +18,44 @@ const getDisplayName = (user) => {
 const hasFullName = (profile) =>
   Boolean(String(profile?.firstName || "").trim() && String(profile?.lastName || "").trim());
 
+const toListInputValue = (value) => {
+  if (!Array.isArray(value) || value.length === 0) {
+    return "";
+  }
+  return value.join(", ");
+};
+
+const parseListInput = (value) => {
+  const source = String(value || "").split(/[\n,]/);
+  const seen = new Set();
+  const items = [];
+
+  for (const raw of source) {
+    const item = raw.trim();
+    if (!item || seen.has(item)) continue;
+    seen.add(item);
+    items.push(item);
+  }
+
+  return items;
+};
+
 const createInitialForm = (user) => ({
   firstName: user?.firstName || "",
   lastName: user?.lastName || "",
   bio: user?.bio || "",
+  fullBio: user?.fullBio || "",
   img: user?.img || "",
   linkedinUrl: user?.linkedinUrl || "",
   githubUrl: user?.githubUrl || "",
+  twitterUrl: user?.twitterUrl || "",
+  websiteUrl: user?.websiteUrl || "",
+  jobTitle: user?.jobTitle || "",
+  yearsExperience:
+    typeof user?.yearsExperience === "number" ? String(user.yearsExperience) : "",
+  alumniOf: user?.alumniOf || "",
+  expertiseInput: toListInputValue(user?.expertise),
+  awardsInput: toListInputValue(user?.awards),
 });
 
 const AuthorPage = () => {
@@ -38,6 +69,7 @@ const AuthorPage = () => {
   const { user, isLoaded } = useUser();
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
+
   const { data: currentUserData } = useQuery({
     queryKey: ["currentUserProfile"],
     queryFn: async () => {
@@ -131,10 +163,15 @@ const AuthorPage = () => {
       return;
     }
 
+    const { expertiseInput, awardsInput, yearsExperience, ...rest } = formData;
+
     updateProfileMutation.mutate({
-      ...formData,
+      ...rest,
       firstName,
       lastName,
+      yearsExperience: yearsExperience.trim(),
+      expertise: parseListInput(expertiseInput),
+      awards: parseListInput(awardsInput),
     });
   };
 
@@ -166,18 +203,36 @@ const AuthorPage = () => {
   const isUploadingAvatar = uploadProgress > 0 && uploadProgress < 100;
   const profileHasFullName = hasFullName(userData);
   const formHasFullName = hasFullName(formData);
+  const fullBio = String(userData?.fullBio || userData?.bio || "").trim();
+  const shortBio = String(userData?.bio || "").trim();
+
+  const socialLinks = [
+    { label: "LinkedIn", url: userData?.linkedinUrl },
+    { label: "GitHub", url: userData?.githubUrl },
+    { label: "X", url: userData?.twitterUrl },
+    { label: "Website", url: userData?.websiteUrl },
+  ].filter((item) => item.url);
+
+  const expertise = Array.isArray(userData?.expertise) ? userData.expertise : [];
+  const awards = Array.isArray(userData?.awards) ? userData.awards : [];
+  const headlineParts = [];
+  if (userData?.jobTitle) {
+    headlineParts.push(userData.jobTitle);
+  }
+  if (typeof userData?.yearsExperience === "number") {
+    headlineParts.push(`${userData.yearsExperience}+ years experience`);
+  }
+  const authorHeadline = headlineParts.join(" | ");
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Breadcrumb */}
-      <div className="flex gap-4">
+      <div className="flex gap-3 text-sm text-gray-600">
         <Link to="/">Home</Link>
-        <span>•</span>
+        <span>/</span>
         <span className="text-blue-800">{displayName}</span>
       </div>
 
-      {/* Author Info */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 p-6">
+      <div className="flex flex-col gap-5 rounded-2xl border border-gray-200 p-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
             {userData.img ? (
@@ -192,9 +247,10 @@ const AuthorPage = () => {
                 {displayName.slice(0, 1).toUpperCase()}
               </div>
             )}
-            <div>
+            <div className="flex flex-col gap-1">
               <h1 className="text-2xl md:text-4xl font-bold">{displayName}</h1>
               <p className="text-gray-500">@{userData.username}</p>
+              {authorHeadline && <p className="text-sm text-gray-600">{authorHeadline}</p>}
             </div>
           </div>
           {isOwnProfile && !isEditing && (
@@ -213,34 +269,62 @@ const AuthorPage = () => {
           </div>
         )}
 
-        <p className="text-gray-700">
-          {userData.bio || "Author has not added a short bio yet."}
-        </p>
-        <div className="flex flex-wrap items-center gap-4 text-sm">
+        <div className="flex flex-wrap items-center gap-3 text-sm">
           <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
             Published posts: {postCount}
           </span>
-          {userData.linkedinUrl && (
+          {socialLinks.map((item) => (
             <a
-              href={userData.linkedinUrl}
+              key={item.label}
+              href={item.url}
               target="_blank"
               rel="noreferrer"
               className="underline text-blue-700"
             >
-              LinkedIn
+              {item.label}
             </a>
-          )}
-          {userData.githubUrl && (
-            <a
-              href={userData.githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="underline text-blue-700"
-            >
-              GitHub
-            </a>
-          )}
+          ))}
         </div>
+
+        {shortBio && (
+          <p className="text-sm text-gray-700">
+            <span className="font-medium text-gray-900">Short bio:</span> {shortBio}
+          </p>
+        )}
+
+        <div className="flex flex-col gap-2">
+          <h2 className="text-lg font-semibold">Full biography</h2>
+          <p className="text-gray-700 whitespace-pre-wrap">
+            {fullBio || "Author has not added a full biography yet."}
+          </p>
+        </div>
+
+        {expertise.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg font-semibold">Expertise</h2>
+            <div className="flex flex-wrap gap-2 text-sm">
+              {expertise.map((topic) => (
+                <span
+                  key={topic}
+                  className="px-3 py-1 rounded-full bg-slate-100 text-slate-700"
+                >
+                  {topic}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {awards.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg font-semibold">Awards</h2>
+            <ul className="list-disc pl-5 text-gray-700">
+              {awards.map((award) => (
+                <li key={award}>{award}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {isOwnProfile && isEditing && (
           <form
@@ -269,6 +353,28 @@ const AuthorPage = () => {
               />
             </div>
             <p className="text-xs text-gray-600">First name and last name are required.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input
+                type="text"
+                name="jobTitle"
+                placeholder="Job title (for example: SEO Specialist)"
+                value={formData.jobTitle}
+                onChange={handleInputChange}
+                className="px-3 py-2 rounded-lg border border-gray-300"
+              />
+              <input
+                type="number"
+                min="0"
+                max="80"
+                name="yearsExperience"
+                placeholder="Years of experience"
+                value={formData.yearsExperience}
+                onChange={handleInputChange}
+                className="px-3 py-2 rounded-lg border border-gray-300"
+              />
+            </div>
+
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-3 flex-wrap">
                 <Upload
@@ -301,15 +407,34 @@ const AuthorPage = () => {
                 className="px-3 py-2 rounded-lg border border-gray-300"
               />
             </div>
+
             <textarea
               name="bio"
-              placeholder="Short bio (up to 320 chars)"
+              placeholder="Short bio (up to 320 chars, used in article card)"
               value={formData.bio}
               onChange={handleInputChange}
               maxLength={320}
               rows={3}
               className="px-3 py-2 rounded-lg border border-gray-300"
             />
+            <textarea
+              name="fullBio"
+              placeholder="Full biography (recommended for EEAT)"
+              value={formData.fullBio}
+              onChange={handleInputChange}
+              maxLength={3000}
+              rows={6}
+              className="px-3 py-2 rounded-lg border border-gray-300"
+            />
+            <input
+              type="text"
+              name="alumniOf"
+              placeholder="Education (for example: Kyiv National University)"
+              value={formData.alumniOf}
+              onChange={handleInputChange}
+              className="px-3 py-2 rounded-lg border border-gray-300"
+            />
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <input
                 type="url"
@@ -327,7 +452,41 @@ const AuthorPage = () => {
                 onChange={handleInputChange}
                 className="px-3 py-2 rounded-lg border border-gray-300"
               />
+              <input
+                type="url"
+                name="twitterUrl"
+                placeholder="X/Twitter URL"
+                value={formData.twitterUrl}
+                onChange={handleInputChange}
+                className="px-3 py-2 rounded-lg border border-gray-300"
+              />
+              <input
+                type="url"
+                name="websiteUrl"
+                placeholder="Personal website URL"
+                value={formData.websiteUrl}
+                onChange={handleInputChange}
+                className="px-3 py-2 rounded-lg border border-gray-300"
+              />
             </div>
+
+            <textarea
+              name="expertiseInput"
+              placeholder="Expertise topics, comma-separated (for example: SEO, Marketing, Web analytics)"
+              value={formData.expertiseInput}
+              onChange={handleInputChange}
+              rows={2}
+              className="px-3 py-2 rounded-lg border border-gray-300"
+            />
+            <textarea
+              name="awardsInput"
+              placeholder="Awards, comma-separated"
+              value={formData.awardsInput}
+              onChange={handleInputChange}
+              rows={2}
+              className="px-3 py-2 rounded-lg border border-gray-300"
+            />
+
             <div className="flex items-center gap-3">
               <button
                 type="submit"
@@ -351,7 +510,6 @@ const AuthorPage = () => {
         )}
       </div>
 
-      {/* Posts */}
       <div className="flex flex-col gap-8">
         <h2 className="text-xl font-semibold">Articles by {displayName}</h2>
         {postsData.posts.length === 0 ? (
@@ -361,7 +519,6 @@ const AuthorPage = () => {
         )}
       </div>
 
-      {/* Pagination */}
       <div className="flex justify-center gap-4 mt-8">
         {page > 1 && (
           <button
