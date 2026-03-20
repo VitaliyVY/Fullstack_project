@@ -128,13 +128,13 @@ const SinglePostPage = () => {
         )}
       </div>
 
-      <div className="flex flex-col md:flex-row gap-12 justify-between">
+      <div className="flex flex-col md:flex-row gap-12 items-start">
         <div
-          className="lg:text-lg min-w-0 flex-1 text-justify break-words [overflow-wrap:anywhere] [&_*]:max-w-full [&_*]:break-words [&_*]:[overflow-wrap:anywhere] [&_img]:h-auto [&_iframe]:w-full"
+          className="lg:text-lg min-w-0 flex-1 text-justify break-words [&_*]:max-w-full [&_*]:break-words [&_img]:h-auto [&_iframe]:w-full"
           dangerouslySetInnerHTML={{ __html: data.content }}
         />
 
-        <div className="px-4 h-max sticky top-8">
+        <div className="w-full md:w-80 lg:w-96 md:flex-shrink-0 md:sticky md:top-8 px-4">
           <h1 className="mb-4 text-sm font-medium">Author</h1>
           <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 p-4">
             <div className="flex items-center gap-3">
