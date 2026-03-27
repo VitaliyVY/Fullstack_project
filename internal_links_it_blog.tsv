@@ -1,0 +1,25 @@
+﻿from	to	link_type	anchor
+/categories/react	/articles/react-hooks-guide	contextual	читати про React Hooks
+/articles/react-hooks-guide	/articles/react-useeffect-complete-guide	related	детально про useEffect
+/articles/react-hooks-guide	/categories/react	breadcrumb	React
+/categories/javascript	/articles/javascript-async-await-guide	contextual	async await гайд
+/articles/javascript-async-await-guide	/articles/fetch-api-guide	related	практичний fetch API
+/articles/javascript-async-await-guide	/categories/javascript	breadcrumb	JavaScript
+/categories/nodejs	/articles/install-nodejs-windows	contextual	встановлення Node.js
+/articles/install-nodejs-windows	/articles/nodejs-api-tutorial	related	Node.js API tutorial
+/articles/install-nodejs-windows	/categories/nodejs	breadcrumb	Node.js
+/categories/devops	/articles/docker-compose-example	contextual	docker compose приклад
+/articles/docker-compose-example	/articles/ci-cd-pipeline-guide	related	CI/CD pipeline
+/articles/docker-compose-example	/categories/devops	breadcrumb	DevOps
+/categories/git	/articles/git-merge-vs-rebase	contextual	git merge vs rebase
+/articles/git-merge-vs-rebase	/articles/resolve-merge-conflicts	related	як вирішити merge conflict
+/articles/git-merge-vs-rebase	/categories/git	breadcrumb	Git
+/categories/career	/articles/frontend-roadmap-2026	contextual	frontend roadmap 2026
+/articles/frontend-roadmap-2026	/articles/fullstack-roadmap-2026	related	fullstack roadmap
+/articles/frontend-roadmap-2026	/categories/career	breadcrumb	Career Learning
+/	/categories/javascript	menu	JavaScript
+/	/categories/react	menu	React
+/	/categories/nodejs	menu	Node.js
+/	/categories/devops	menu	DevOps
+/	/categories/git	menu	Git
+/	/categories/career	menu	Career Learning

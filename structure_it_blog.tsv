@@ -1,0 +1,19 @@
+﻿level	url	page_name	type	head_keyword	relations
+0	/	Головна	home	it blog	Останні статті всіх категорій
+1	/categories/javascript	JavaScript	category	javascript tutorial	react,nodejs
+1	/categories/react	React	category	react hooks tutorial	javascript
+1	/categories/nodejs	Node.js	category	node.js tutorial	devops,javascript
+1	/categories/devops	DevOps	category	docker tutorial	nodejs
+1	/categories/git	Git	category	git tutorial	devops
+1	/categories/career	Career Learning	category	frontend roadmap	javascript,nodejs
+2	/articles/react-hooks-guide	Повний гайд по React Hooks	article	react hooks tutorial	посилається на /articles/react-useeffect-complete-guide; отримує від /categories/react
+2	/articles/javascript-async-await-guide	Async/Await в JavaScript	article	async await javascript	посилається на /articles/fetch-api-guide; отримує від /categories/javascript
+2	/articles/react-vs-vue-2026	React vs Vue 2026	article	react vs vue	посилається на /categories/react; отримує від /categories/react
+2	/articles/install-nodejs-windows	Встановити Node.js на Windows	article	how to install node.js	посилається на /articles/nodejs-api-tutorial; отримує від /categories/nodejs
+2	/articles/docker-compose-example	Docker Compose: приклад	article	docker compose example	посилається на /articles/ci-cd-pipeline-guide; отримує від /categories/devops
+2	/articles/git-merge-vs-rebase	Git Merge vs Rebase	article	git merge vs rebase	посилається на /articles/resolve-merge-conflicts; отримує від /categories/git
+2	/articles/frontend-roadmap-2026	Frontend Roadmap 2026	article	frontend roadmap	посилається на /articles/fullstack-roadmap-2026; отримує від /categories/career
+3	/about	Про нас	static		допоміжна сторінка
+3	/authors	Автори	listing		допоміжна сторінка
+3	/tags/[slug]	Теги	dynamic		допоміжна сторінка
+3	/search	Пошук	functional		допоміжна сторінка

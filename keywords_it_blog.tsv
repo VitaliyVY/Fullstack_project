@@ -1,0 +1,41 @@
+﻿keyword	intent	volume	competition	cluster	target_page	priority	notes
+javascript tutorial	informational	10k-100k	High	javascript-basics	/categories/javascript	1	Trends (Worldwide, past 12m): stable baseline, slight peaks in Sep-Oct and Jan.
+javascript for beginners	informational	10k-100k	Medium	javascript-basics	/articles/javascript-for-beginners	1	Trends (Worldwide, past 12m): stable baseline, slight peaks in Sep-Oct and Jan.
+what is javascript	informational	10k-100k	Low	javascript-basics	/articles/what-is-javascript	2	Trends (Worldwide, past 12m): stable baseline, slight peaks in Sep-Oct and Jan.
+javascript functions examples	informational	1k-10k	Medium	javascript-basics	/articles/javascript-functions-examples	2	Trends (Worldwide, past 12m): stable baseline, slight peaks in Sep-Oct and Jan.
+javascript variables guide	informational	1k-10k	Low	javascript-basics	/articles/javascript-variables-guide	2	Trends (Worldwide, past 12m): stable baseline, slight peaks in Sep-Oct and Jan.
+async await javascript	informational	10k-100k	Medium	javascript-async	/articles/javascript-async-await-guide	1	Trends (Worldwide, past 12m): stable interest, small spikes in Q1 learning season.
+promises vs async await	commercial	1k-10k	Medium	javascript-async	/articles/promises-vs-async-await	2	Trends (Worldwide, past 12m): stable interest, small spikes in Q1 learning season.
+event loop javascript	informational	1k-10k	Medium	javascript-async	/articles/javascript-event-loop-explained	2	Trends (Worldwide, past 12m): stable interest, small spikes in Q1 learning season.
+callback hell javascript	informational	1k-10k	Low	javascript-async	/articles/callback-hell-to-async-await	3	Trends (Worldwide, past 12m): stable interest, small spikes in Q1 learning season.
+fetch api javascript	informational	1k-10k	Medium	javascript-async	/articles/fetch-api-guide	2	Trends (Worldwide, past 12m): stable interest, small spikes in Q1 learning season.
+react hooks tutorial	informational	10k-100k	High	react-hooks	/articles/react-hooks-guide	1	Trends (Worldwide, past 12m): strong and stable demand, peaks around Jan-Feb and Sep.
+react hooks for beginners	informational	1k-10k	Medium	react-hooks	/articles/react-hooks-for-beginners	1	Trends (Worldwide, past 12m): strong and stable demand, peaks around Jan-Feb and Sep.
+useState example	informational	1k-10k	Medium	react-hooks	/articles/react-usestate-examples	1	Trends (Worldwide, past 12m): strong and stable demand, peaks around Jan-Feb and Sep.
+useEffect example	informational	1k-10k	Medium	react-hooks	/articles/react-useeffect-complete-guide	1	Trends (Worldwide, past 12m): strong and stable demand, peaks around Jan-Feb and Sep.
+custom hooks react	informational	1k-10k	Medium	react-hooks	/articles/custom-hooks-react	2	Trends (Worldwide, past 12m): strong and stable demand, peaks around Jan-Feb and Sep.
+react vs vue	commercial	10k-100k	High	frontend-comparison	/articles/react-vs-vue-2026	1	Trends (Worldwide, past 12m): seasonal spikes in Jan and Sep when teams choose stack.
+next.js vs nuxt	commercial	1k-10k	High	frontend-comparison	/articles/nextjs-vs-nuxt	1	Trends (Worldwide, past 12m): seasonal spikes in Jan and Sep when teams choose stack.
+svelte vs react	commercial	1k-10k	Medium	frontend-comparison	/articles/svelte-vs-react	2	Trends (Worldwide, past 12m): seasonal spikes in Jan and Sep when teams choose stack.
+best frontend framework	commercial	10k-100k	High	frontend-comparison	/articles/best-frontend-framework-2026	1	Trends (Worldwide, past 12m): seasonal spikes in Jan and Sep when teams choose stack.
+vercel vs netlify	commercial	1k-10k	Medium	frontend-comparison	/articles/vercel-vs-netlify	2	Trends (Worldwide, past 12m): seasonal spikes in Jan and Sep when teams choose stack.
+node.js tutorial	informational	10k-100k	Medium	nodejs-basics	/categories/nodejs	1	Trends (Worldwide, past 12m): stable demand with mild Q1 peak.
+node.js for beginners	informational	10k-100k	Medium	nodejs-basics	/articles/nodejs-for-beginners	1	Trends (Worldwide, past 12m): stable demand with mild Q1 peak.
+how to install node.js	transactional	10k-100k	Low	nodejs-basics	/articles/install-nodejs-windows	1	Trends (Worldwide, past 12m): stable demand with mild Q1 peak.
+express.js tutorial	informational	1k-10k	Medium	nodejs-basics	/articles/expressjs-tutorial	2	Trends (Worldwide, past 12m): stable demand with mild Q1 peak.
+node.js api tutorial	informational	1k-10k	Medium	nodejs-basics	/articles/nodejs-api-tutorial	2	Trends (Worldwide, past 12m): stable demand with mild Q1 peak.
+docker tutorial	informational	10k-100k	Medium	devops-basics	/categories/devops	1	Trends (Worldwide, past 12m): moderate growth, peaks in Jan-Mar.
+docker compose example	informational	1k-10k	Medium	devops-basics	/articles/docker-compose-example	2	Trends (Worldwide, past 12m): moderate growth, peaks in Jan-Mar.
+kubernetes basics	informational	10k-100k	Medium	devops-basics	/articles/what-is-kubernetes	2	Trends (Worldwide, past 12m): moderate growth, peaks in Jan-Mar.
+ci cd pipeline	informational	1k-10k	Medium	devops-basics	/articles/ci-cd-pipeline-guide	2	Trends (Worldwide, past 12m): moderate growth, peaks in Jan-Mar.
+devops roadmap	informational	1k-10k	Medium	devops-basics	/articles/devops-roadmap-2026	1	Trends (Worldwide, past 12m): moderate growth, peaks in Jan-Mar.
+git tutorial	informational	10k-100k	Medium	git-workflow	/articles/git-tutorial	2	Trends (Worldwide, past 12m): stable with occasional spikes during release periods.
+git rebase explained	informational	1k-10k	Low	git-workflow	/articles/git-rebase-explained	2	Trends (Worldwide, past 12m): stable with occasional spikes during release periods.
+git merge vs rebase	commercial	1k-10k	Medium	git-workflow	/articles/git-merge-vs-rebase	2	Trends (Worldwide, past 12m): stable with occasional spikes during release periods.
+how to resolve merge conflict	transactional	1k-10k	Medium	git-workflow	/articles/resolve-merge-conflicts	1	Trends (Worldwide, past 12m): stable with occasional spikes during release periods.
+github pull request guide	informational	1k-10k	Low	git-workflow	/articles/github-pull-request-guide	2	Trends (Worldwide, past 12m): stable with occasional spikes during release periods.
+frontend roadmap	informational	1k-10k	Medium	career-learning	/articles/frontend-roadmap-2026	1	Trends (Worldwide, past 12m): clear peaks in Jan and Sep.
+backend roadmap	informational	1k-10k	Medium	career-learning	/articles/backend-roadmap-2026	1	Trends (Worldwide, past 12m): clear peaks in Jan and Sep.
+fullstack developer roadmap	informational	1k-10k	Medium	career-learning	/articles/fullstack-roadmap-2026	1	Trends (Worldwide, past 12m): clear peaks in Jan and Sep.
+web development roadmap	informational	1k-10k	Medium	career-learning	/articles/web-development-roadmap-2026	1	Trends (Worldwide, past 12m): clear peaks in Jan and Sep.
+learn programming online	transactional	10k-100k	High	career-learning	/articles/learn-programming-online	2	Trends (Worldwide, past 12m): clear peaks in Jan and Sep.

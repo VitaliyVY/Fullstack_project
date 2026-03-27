@@ -1,0 +1,33 @@
+﻿from	to	link_type	anchor
+/categories/google-keyword-planner	/articles/google-keyword-planner-guide	contextual	Google Keyword Planner guide
+/categories/google-keyword-planner	/articles/google-keyword-planner-free	contextual	keyword planner free access
+/articles/google-keyword-planner-guide	/articles/google-keyword-planner-free	related	planner free limits
+/articles/google-keyword-planner-free	/articles/keyword-research-process	related	keyword research process
+/articles/google-keyword-planner-guide	/categories/google-keyword-planner	breadcrumb	Google Keyword Planner
+/categories/keyword-research	/articles/keyword-research-process	contextual	keyword research step by step
+/categories/keyword-research	/articles/keyword-search-volume-guide	contextual	keyword search volume
+/articles/keyword-research-process	/articles/seo-keyword-research-guide	related	SEO keyword research
+/articles/keyword-search-volume-guide	/articles/long-tail-keywords-guide	related	long tail keywords
+/articles/keyword-research-process	/categories/keyword-research	breadcrumb	Keyword Research Basics
+/categories/seo-keywords	/articles/seo-keyword-research-guide	contextual	SEO keyword research guide
+/articles/seo-keyword-research-guide	/articles/keyword-rank-checker-guide	related	track keyword positions
+/articles/long-tail-keywords-guide	/categories/seo-keywords	breadcrumb	SEO Keywords
+/categories/keyword-tools	/articles/keyword-tool-comparison	contextual	keyword tools comparison
+/categories/keyword-tools	/articles/free-keyword-tools-list	contextual	free keyword tools
+/articles/keyword-tool-comparison	/articles/free-keyword-tools-list	related	free keyword tool list
+/articles/free-keyword-tools-list	/articles/semrush-keyword-research-guide	related	Semrush walkthrough
+/articles/keyword-tool-comparison	/categories/keyword-tools	breadcrumb	Keyword Tools
+/categories/rank-tracking	/articles/keyword-rank-checker-guide	contextual	keyword rank checker guide
+/articles/keyword-rank-checker-guide	/articles/seo-ranking-checker-guide	related	SEO ranking checker
+/articles/seo-ranking-checker-guide	/categories/rank-tracking	breadcrumb	Rank Tracking
+/categories/seo-tools	/articles/semrush-keyword-research-guide	contextual	Semrush keyword research
+/categories/seo-tools	/articles/youtube-keyword-tool-guide	contextual	YouTube keyword tool
+/articles/semrush-keyword-research-guide	/articles/youtube-keyword-tool-guide	related	YouTube keyword workflow
+/articles/youtube-keyword-tool-guide	/articles/keyword-tool-comparison	related	compare keyword tools
+/articles/semrush-keyword-research-guide	/categories/seo-tools	breadcrumb	Third-Party SEO Tools
+/	/categories/google-keyword-planner	menu	Google Keyword Planner
+/	/categories/keyword-research	menu	Keyword Research Basics
+/	/categories/seo-keywords	menu	SEO Keywords
+/	/categories/keyword-tools	menu	Keyword Tools
+/	/categories/rank-tracking	menu	Rank Tracking
+/	/categories/seo-tools	menu	Third-Party SEO Tools

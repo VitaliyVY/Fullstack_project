@@ -1,0 +1,24 @@
+﻿level	url	page_name	type	head_keyword	relations
+0	/	Головна	home	keyword research	Огляд усіх SEO/keyword кластерів
+1	/categories/google-keyword-planner	Google Keyword Planner	category	keyword planner	keyword-research-basics, keyword-tools
+1	/categories/keyword-research	Keyword Research Basics	category	keyword research	google-keyword-planner, seo-keywords
+1	/categories/seo-keywords	SEO Keywords	category	seo keyword research	keyword-research-basics, rank-tracking
+1	/categories/keyword-tools	Keyword Tools	category	keyword tool	google-keyword-planner, third-party-tools
+1	/categories/rank-tracking	Rank Tracking	category	keyword rank checker	seo-keywords
+1	/categories/seo-tools	Third-Party SEO Tools	category	youtube keyword tool	keyword-tools
+2	/articles/google-keyword-planner-guide	Google Keyword Planner Guide	article	keyword planner	посилається на /articles/google-keyword-planner-free; отримує від /categories/google-keyword-planner
+2	/articles/google-keyword-planner-free	Google Keyword Planner Free: Limits and Access	article	google keyword planner free	посилається на /articles/keyword-research-process; отримує від /articles/google-keyword-planner-guide
+2	/articles/keyword-research-process	Keyword Research Process Step by Step	article	keyword research	посилається на /articles/seo-keyword-research-guide; отримує від /categories/keyword-research
+2	/articles/keyword-search-volume-guide	How to Interpret Keyword Search Volume	article	keyword search volume	посилається на /articles/long-tail-keywords-guide; отримує від /categories/keyword-research
+2	/articles/seo-keyword-research-guide	SEO Keyword Research Guide	article	seo keyword research	посилається на /articles/keyword-rank-checker-guide; отримує від /categories/seo-keywords
+2	/articles/long-tail-keywords-guide	Long Tail Keywords: Practical Guide	article	long tail keywords	посилається на /articles/keyword-search-volume-guide; отримує від /articles/seo-keyword-research-guide
+2	/articles/keyword-tool-comparison	Keyword Tool Comparison (Pros/Cons)	article	keyword tool	посилається на /articles/free-keyword-tools-list; отримує від /categories/keyword-tools
+2	/articles/free-keyword-tools-list	Best Free Keyword Tools	article	free keyword tool	посилається на /articles/semrush-keyword-research-guide; отримує від /articles/keyword-tool-comparison
+2	/articles/keyword-rank-checker-guide	Keyword Rank Checker Guide	article	keyword rank checker	посилається на /articles/seo-ranking-checker-guide; отримує від /categories/rank-tracking
+2	/articles/seo-ranking-checker-guide	SEO Ranking Checker: Metrics and Mistakes	article	seo ranking checker	посилається на /articles/keyword-rank-checker-guide; отримує від /articles/seo-keyword-research-guide
+2	/articles/semrush-keyword-research-guide	Semrush Keyword Research Walkthrough	article	semrush keyword research	посилається на /articles/youtube-keyword-tool-guide; отримує від /categories/seo-tools
+2	/articles/youtube-keyword-tool-guide	YouTube Keyword Tool Guide	article	youtube keyword tool	посилається на /articles/keyword-tool-comparison; отримує від /articles/semrush-keyword-research-guide
+3	/about	Про нас	static		допоміжна сторінка
+3	/authors	Автори	listing		допоміжна сторінка
+3	/tags/[slug]	Теги	dynamic		допоміжна сторінка
+3	/search	Пошук	functional		допоміжна сторінка
