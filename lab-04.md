@@ -104,6 +104,7 @@
 ### 1.3 Оптимізація структури заголовків
 
 За допомогою розширення HeadingsMap зняли скріншот поточної ієрархії заголовків обраної сторінки.
+
 ![Heading_hierarchies](lab_4_info/Heading_hierarchies.png)
 
 Виправлена структура заголовків у форматі дерева.
@@ -133,6 +134,7 @@ H1: Tech Blog: JavaScript, Frontend, Backend та AI
 | logo.png | Lama Logo | PNG | 4.66 KB | Lama Dev Blog logo | SVG |
 
 Для одного з зображень виконали реальну конвертацію через Squoosh.
+
 ![Photo_conversion_via_Squoosh](lab_4_info/Photo_conversion_via_Squoosh.png)
 
 ```
@@ -215,6 +217,7 @@ H1: Tech Blog: JavaScript, Frontend, Backend та AI
 Це означає, що JSON-LD розмітка для статті коректна, і Google її визнає дійсною.
 
 Також можемо переглянути деталі виявленого елемента.
+
 ![JSON-LD-Article-info](lab_4_info/JSON-LD-Article-info.png)
 
 ## 2. Написання SEO-тексту
@@ -334,8 +337,112 @@ E-E-A-T сигнал:     мінімум одне конкретне тверд�
 
 Canonical тег присутній та вказує на основний URL сторінки. Усі варіації URL з параметрами (utm, ref) ведуть до одного canonical, що дозволяє уникнути проблеми дублювання контенту та правильно консолідувати SEO-сигнали.
 
-### 3.3 Перевірка Search Console (або симуляція)
+### 3.3 Перевірка Search Console
 
 Сторінка вже є в індексі Google - перевірили у Google Search Console.
 
 ![Google_Index](lab_4_info/Google_Index.png)
+
+При перевірці ми отримали такі результати.
+
+![Google_Search_Console](lab_4_info/Google_Search_Console.png)
+
+### 3.4 Виявлення та вирішення keyword cannibalization
+
+Перевірили проєкт на канібалізацію.
+
+```
+Крок 1. Обрали 3 ключових запити зі свого семантичного ядра (лаб.№3)
+
+- docker tutorial
+- react hooks tutorial
+- node.js api tutorial
+
+Крок 2. Для кожного виконали пошук:
+         site:yourdomain.ua "ключовий запит"
+
+Крок 3. Заповнили таблицю.
+```
+
+| Цільовий запит                | Кількість URL у результаті | Список URL             | Є канібалізація? |
+| ----------------------------- | -------------------------- | ---------------------- | ---------------- |
+| site:lamalog.pp.ua javascript | 1                          | https://lamalog.pp.ua/ | Ні               |
+| site:lamalog.pp.ua ai         | 1                          | https://lamalog.pp.ua/ | Ні               |
+| site:lamalog.pp.ua devops     | 1                          | https://lamalog.pp.ua/ | Ні               |
+
+Канібалізація не виявлена.
+
+### 3.5 Підсумкова SEO-картка сторінки
+
+Після всіх перевірок заповнили підсумкову картку оптимізованої сторінки.
+
+```
+URL сторінки: https://lamalog.pp.ua/
+
+Цільовий запит: javascript tutorial
+Пошуковий інтент: informational
+
+Title (оптимізований): Tech Blog про JavaScript, AI, DevOps та Backend | Lama Dev
+Meta description: Explore a tech blog about JavaScript, frontend, backend, DevOps and AI. Read latest articles, tutorials and insights. Start learning today!
+H1: DevOps Deployment Guide: JavaScript, Backend, CI/CD та AI
+Canonical: https://lamalog.pp.ua/
+
+Кількість слів у тексті: ~ 650
+Щільність ключового слова: ~ 0.46%
+Schema.org тип: Article
+Rich Results Test: пройдено
+
+PageSpeed Performance (mobile): 89
+LCP: 1.0 с
+Статус Core Web Vitals: Good
+
+Виявлені канібалізації: немає
+Зображення конвертовано: Так (кількість: 5)
+```
+
+## Результати для звіту
+
+```
+1. Таблиця аудиту (п.1.1) - поточний стан сторінки
+2. Оптимізовані title, description, H1, URL (п.1.2)
+3. Схема заголовків H1–H6 до і після (п.1.3) зі скріншотом HeadingsMap
+4. Таблиця оптимізації зображень + скріншот Squoosh (п.1.4)
+5. JSON-LD розмітка + скріншот Rich Results Test (п.1.5)
+6. Аналіз конкурентів (п.2.2)
+7. SEO-текст мінімум 400 слів + таблиця вимог (п.2.3–2.4)
+8. Таблиця Core Web Vitals + скріншот PageSpeed Insights (п.3.1)
+9. Перевірка canonical (п.3.2)
+10. Таблиця канібалізації з рішеннями (п.3.4)
+11. Підсумкова SEO-картка сторінки (п.3.5)
+```
+
+## Контрольні питання
+
+### Рівень 1 - Розуміння термінів
+
+1. Helpful Content Update – алгоритм Google, який оцінює якість контенту на рівні всього домену, а не лише окремої сторінки. Домени з великою кількістю корисного контенту ранжуються вище.
+
+2. `<title>` vs `<h1>` – title показує Google у сніппеті, H1 – заголовок на сторінці. Вони можуть відрізнятися для кращого UX/SEO. Google може перезаписати title, якщо він не релевантний або занадто довгий.
+3. LCP – Largest Contentful Paint, час завантаження найбільшого видимого елемента. Для LCP-зображення не можна lazy-load, бо це затримує відображення. Альтернатива: пріоритетне завантаження (loading="eager") або оптимізація формату (WebP/AVIF).
+4. rel="canonical" – показує Google основну версію сторінки. Обов’язковий у випадках: дублі сторінок, різні URL з однаковим контентом, та контент для друку/підписки.
+5. Schema.org і JSON-LD – структуровані дані для опису контенту. Допомагають Google показувати rich snippets (зірки, рейтинги, події) у результатах пошуку.
+
+### Рівень 2 – Аналіз
+
+1. Google замінює title – сторінка має занадто довгий або неінформативний title. Виправлення: скоротити title до 50–60 символів і зробити релевантним H1.
+2. Alt-тексти – alt="MacBook Pro M3 14 дюймів…" кращий, бо описує зміст зображення, SEO і доступність.
+3. Велике hero-зображення (3.2 МБ) – оптимізувати формат (WebP), зменшити розмір, використовувати responsive images (srcset), lazy-load інші не-LCP картинки.
+4. Meta description – не впливає напряму на позиції, але підвищує CTR, допомагає користувачам.
+5. React без SSR – Google не індексує контент, бо він рендериться на клієнті. Варіанти: SSR (Next.js), prerendering, або динамічний sitemap + серверне рендерування.
+
+### Рівень 3 – Синтез та висновки
+
+1. On-page SEO топ-1 vs топ-10 – топ-1 має релевантний title, H1, чітку структуру заголовків (H2/H3) і Schema.org. Топ-10 може бути без оптимізації або дублювати контент.
+2. SEO-аудит великого магазину – перевірити: дублікати, відсутні title/meta, thin content, canonical, швидкість сторінок. План: оптимізувати опис товарів, додати унікальний контент, структуровані дані.
+3. Мультимовний сайт – обов’язково: hreflang, різні URL для мов, дублікат canonical, локалізовані meta та H1.
+4. Цінність frontend-розробника для SEO – конкретні рішення:
+   - Semantic HTML (`<article>`, `<section>`, `<header>`)
+   - Правильні H1–H3 та title
+   - Оптимізація зображень і LCP
+   - Структуровані дані Schema.org
+   - Швидке завантаження та lazy-load для не-LCP елементів
