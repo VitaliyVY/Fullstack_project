@@ -40,7 +40,10 @@ const DEFAULT_KNOWS_ABOUT = Object.values(CATEGORY_NAMES).filter(
   (item) => item !== "All",
 );
 
-const normalizeText = (value) => String(value || "").replace(/\s+/g, " ").trim();
+const normalizeText = (value) =>
+  String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
 
 const limitText = (value, max = 160) => {
   const text = normalizeText(value);
@@ -158,7 +161,8 @@ const buildAuthorStructuredData = ({
   origin,
   knowsAbout = [],
 }) => {
-  const resolvedUsername = normalizeText(user?.username) || normalizeText(username);
+  const resolvedUsername =
+    normalizeText(user?.username) || normalizeText(username);
   if (!resolvedUsername) return null;
 
   const profileTopics = Array.isArray(user?.expertise) ? user.expertise : [];
@@ -173,13 +177,17 @@ const buildAuthorStructuredData = ({
     toAbsoluteUrl(user?.websiteUrl, origin),
   ]);
   const displayName = getDisplayName(user, resolvedUsername);
-  const image = toAbsoluteUrl(user?.img, origin) || toAbsoluteUrl("/favicon.ico", origin);
+  const image =
+    toAbsoluteUrl(user?.img, origin) || toAbsoluteUrl("/favicon.ico", origin);
   const email = normalizeText(user?.email);
   const awards = Array.isArray(user?.awards) ? unique(user.awards) : [];
   const author = {
     "@type": "Person",
     name: displayName || resolvedUsername,
-    url: toAbsoluteUrl(`/authors/${encodeURIComponent(resolvedUsername)}`, origin),
+    url: toAbsoluteUrl(
+      `/authors/${encodeURIComponent(resolvedUsername)}`,
+      origin,
+    ),
     knowsAbout: knowsAboutValues,
     description:
       limitText(user?.fullBio || user?.bio, 1000) ||
@@ -207,7 +215,8 @@ const removeEmptyFields = (value) => {
         if (item == null) return false;
         if (typeof item === "string" && !item.trim()) return false;
         if (Array.isArray(item) && item.length === 0) return false;
-        if (typeof item === "object" && Object.keys(item).length === 0) return false;
+        if (typeof item === "object" && Object.keys(item).length === 0)
+          return false;
         return true;
       });
     return cleanedArray;
@@ -250,7 +259,12 @@ const buildStructuredData = ({
     const username = decodeURIComponent(authorMatch.params.username);
     const page = getPage(parsed.searchParams);
     const user = queryClient.getQueryData(["user", username]);
-    const posts = queryClient.getQueryData(["posts", "author", username, page])?.posts;
+    const posts = queryClient.getQueryData([
+      "posts",
+      "author",
+      username,
+      page,
+    ])?.posts;
     const knowsAbout = getTopicsFromPosts(posts);
     const person = buildAuthorStructuredData({
       user,
@@ -287,7 +301,8 @@ const buildStructuredData = ({
         url: canonical,
         datePublished: post.createdAt,
         dateModified: post.updatedAt || post.createdAt,
-        articleSection: CATEGORY_NAMES[post.category] || normalizeText(post.category),
+        articleSection:
+          CATEGORY_NAMES[post.category] || normalizeText(post.category),
         keywords: unique(post.tags || []),
         author,
         publisher: {
@@ -319,7 +334,8 @@ export const getMetadataForUrl = (url, queryClient, origin) => {
     const sort = parsed.searchParams.get("sort");
     if (sort === "trending") {
       title = "Trending Posts | Lama Dev Blog App";
-      description = "Trending posts and recent popular topics from our tech blog.";
+      description =
+        "Trending posts and recent popular topics from our tech blog.";
     } else if (sort === "popular") {
       title = "Most Popular Posts | Lama Dev Blog App";
       description = "Most popular articles and guides from our tech blog.";
