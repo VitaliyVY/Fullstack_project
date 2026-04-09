@@ -327,11 +327,43 @@ nav-only   - посилання тільки з навігації (не кон�
 
 | № | Проблема | Тип                             | Що зроблено | URL де виправлено |
 |---|----------|---------------------------------|-------------|-------------------|
-| 1 |          | orphan / анкор / глибина / інше |             |                   |
-| 2 |          |                                 |             |                   |
-| 3 |          |                                 |             |                   |
+| 1 | Generic анкори "Read More" | анкор | Замінено generic анкор на descriptive: `Read more about {title}` | `/posts`, `/categories/*` |
+| 2 | Відсутність breadcrumbs на сторінці статті | інше | Додано breadcrumbs: `Головна → Категорія → Стаття` | `/articles/:slug` |
+| 3 | Зламане посилання в контенті статті (`1234123123`) | інше | Невалідні `href` нейтралізовано (не рендеряться як клікабельні `<a>`) | `/articles/123-2`, `/articles/:slug` |
 
 Для кожного виправлення - зробити скріншот "до" та "після" у вихідному коді або DevTools.
+
+#### Скріншоти до/після
+
+##### 1) Generic анкор "Read More" → descriptive
+
+**До:**
+
+![Before more](images/before_more.png)
+
+**Після:**
+
+![After more](images/after_more.png)
+
+##### 2) Breadcrumbs на сторінці статті
+
+**До:**
+
+![Before breadcrumbs](images/after_link.png)
+
+**Після:**
+
+![After breadcrumbs](images/before_link.png)
+
+##### 3) Зламане посилання `1234123123`
+
+**До:**
+
+![Before broken link](images/1.png)
+
+**Після:**
+
+![After broken link](images/0.png)
 
 ---
 

@@ -44,7 +44,7 @@ const PostListItem = ({ post }) => {
           to={`/articles/${post.slug}`}
           className="underline text-blue-800 text-sm"
         >
-          Read More
+          Read more about {post.title}
         </Link>
       </div>
     </div>

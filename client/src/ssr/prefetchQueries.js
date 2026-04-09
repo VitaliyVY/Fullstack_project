@@ -178,5 +178,19 @@ export const prefetchQueriesForUrl = async (url, queryClient) => {
         }),
       );
     }
+
+    if (post?.category) {
+      await safePrefetch(() =>
+        queryClient.prefetchQuery({
+          queryKey: ["relatedPosts", post.category],
+          queryFn: () =>
+            getPosts({
+              cat: post.category,
+              limit: 4,
+              sort: "newest",
+            }),
+        }),
+      );
+    }
   }
 };

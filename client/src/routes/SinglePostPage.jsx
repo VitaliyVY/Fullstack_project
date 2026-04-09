@@ -12,6 +12,17 @@ const fetchPost = async (slug) => {
   return res.data;
 };
 
+const fetchPostsByCategory = async (category, limit = 4) => {
+  const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts`, {
+    params: {
+      cat: category,
+      limit,
+      sort: "newest",
+    },
+  });
+  return res.data;
+};
+
 const getCategoryDisplay = (cat) => {
   const categories = {
     general: "All",
@@ -50,12 +61,66 @@ const getAuthorSummary = (user) => {
   return parts.join(", ");
 };
 
-const normalizeArticleHtml = (html) =>
-  String(html || "")
-    .replace(/writing-mode\s*:[^;"']*;?/gi, "")
-    .replace(/text-orientation\s*:[^;"']*;?/gi, "")
-    .replace(/style="\s*"/gi, "")
-    .replace(/style='\s*'/gi, "");
+const isSafeExternalUrl = (href) => {
+  try {
+    const url = new URL(href);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
+const stripOriginAndQuery = (href) =>
+  String(href || "")
+    .trim()
+    .replace(/^https?:\/\/[^/]+/i, "")
+    .split(/[?#]/)[0]
+    .replace(/\/+$/, "");
+
+const sanitizeAnchors = (html, currentSlug) => {
+  const currentArticlePath = `/articles/${currentSlug}`.replace(/\/+$/, "");
+  const shortPath = `/${currentSlug}`.replace(/\/+$/, "");
+
+  return String(html || "").replace(
+    /<a\b([^>]*)href=(["'])(.*?)\2([^>]*)>([\s\S]*?)<\/a>/gi,
+    (fullMatch, beforeHref, quote, rawHref, afterHref, anchorText) => {
+      const href = String(rawHref || "").trim();
+      const normalizedPath = stripOriginAndQuery(href);
+
+      const isSelfLink =
+        normalizedPath &&
+        (normalizedPath === currentArticlePath || normalizedPath === shortPath);
+
+      if (isSelfLink) {
+        return `<span>${anchorText}</span>`;
+      }
+
+      const isAllowedRelativeHref =
+        href.startsWith("/") ||
+        href.startsWith("#") ||
+        href.startsWith("mailto:") ||
+        href.startsWith("tel:");
+
+      const isValidHref = isAllowedRelativeHref || isSafeExternalUrl(href);
+
+      if (!isValidHref) {
+        return `<span>${anchorText}</span>`;
+      }
+
+      return `<a${beforeHref}href=${quote}${href}${quote}${afterHref}>${anchorText}</a>`;
+    },
+  );
+};
+
+const normalizeArticleHtml = (html, currentSlug) =>
+  sanitizeAnchors(
+    String(html || "")
+      .replace(/writing-mode\s*:[^;"']*;?/gi, "")
+      .replace(/text-orientation\s*:[^;"']*;?/gi, "")
+      .replace(/style="\s*"/gi, "")
+      .replace(/style='\s*'/gi, ""),
+    currentSlug,
+  );
 
 const formatDate = (dateValue) => {
   if (!dateValue) {
@@ -82,6 +147,12 @@ const SinglePostPage = () => {
     queryFn: () => fetchPost(slug),
   });
 
+  const { isPending: isRelatedPending, data: relatedData } = useQuery({
+    queryKey: ["relatedPosts", data?.category],
+    queryFn: () => fetchPostsByCategory(data.category, 4),
+    enabled: Boolean(data?.category),
+  });
+
   if (isPending) return "loading...";
   if (error) return "Something went wrong!" + error.message;
   if (!data) return "Post not found!";
@@ -98,10 +169,27 @@ const SinglePostPage = () => {
     { label: "X", url: data.user?.twitterUrl },
     { label: "Website", url: data.user?.websiteUrl },
   ].filter((item) => item.url);
-  const normalizedContent = normalizeArticleHtml(data.content);
+  const normalizedContent = normalizeArticleHtml(data.content, slug);
+  const relatedPosts = (relatedData?.posts || [])
+    .filter((post) => post._id !== data._id)
+    .slice(0, 3);
 
   return (
     <div className="flex flex-col gap-8">
+      <div className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
+        <Link className="hover:text-blue-800" to="/">
+          Головна
+        </Link>
+        <span>→</span>
+        <Link className="text-blue-800" to={`/categories/${data.category}`}>
+          {getCategoryDisplay(data.category)}
+        </Link>
+        <span>→</span>
+        <span className="text-gray-700 break-words [overflow-wrap:anywhere]">
+          {data.title}
+        </span>
+      </div>
+
       <div className="flex gap-8 min-w-0">
         <div className="lg:w-3/5 min-w-0 flex flex-col gap-8">
           <h1 className="text-xl md:text-3xl xl:text-4xl 2xl:text-5xl font-semibold break-words [overflow-wrap:anywhere]">
@@ -241,6 +329,52 @@ const SinglePostPage = () => {
           <Search />
         </div>
       </div>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="text-2xl md:text-3xl font-semibold">Схожі статті</h2>
+        {isRelatedPending ? (
+          <p className="text-sm text-gray-500">Завантаження...</p>
+        ) : relatedPosts.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {relatedPosts.map((post) => (
+              <article
+                key={post._id}
+                className="flex flex-col gap-3 rounded-2xl border border-gray-200 p-4"
+              >
+                {post.img && (
+                  <Link to={`/articles/${post.slug}`} className="block">
+                    <Image
+                      src={post.img}
+                      className="rounded-xl object-cover w-full h-44"
+                      w="480"
+                    />
+                  </Link>
+                )}
+                <Link
+                  to={`/articles/${post.slug}`}
+                  className="text-lg font-semibold hover:text-blue-800"
+                >
+                  {post.title}
+                </Link>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <Link className="text-blue-700" to={`/categories/${post.category}`}>
+                    {getCategoryDisplay(post.category)}
+                  </Link>
+                  <span>{format(post.createdAt)}</span>
+                </div>
+                {post.desc && (
+                  <p className="text-sm text-gray-700">{post.desc}</p>
+                )}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">
+            Наразі немає інших статей у цій категорії.
+          </p>
+        )}
+      </section>
+
       <Comments postId={data._id} />
     </div>
   );
