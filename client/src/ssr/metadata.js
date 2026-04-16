@@ -11,6 +11,11 @@ const RESERVED_SLUGS = new Set([
   "admin",
   "login",
   "register",
+  "search",
+  "robots.txt",
+  "sitemap.xml",
+  "sitemap_index.xml",
+  "favicon.ico",
 ]);
 
 const DEFAULT_TITLE = "Lama Dev Blog App";
@@ -93,6 +98,56 @@ const getArticleSlug = (pathname) => {
     return decodeURIComponent(articleMatch.params.slug);
   }
   return isSingleSlugRoute(pathname);
+};
+
+const NOINDEX_EXACT_PATHS = new Set(["/login", "/register", "/write"]);
+const KNOWN_EXACT_PATHS = new Set(["/", "/about", "/posts", ...NOINDEX_EXACT_PATHS]);
+
+const isAdminPath = (pathname) =>
+  pathname === "/admin" || pathname.startsWith("/admin/");
+
+const isWriteEditorPath = (pathname) => Boolean(matchPath("/write/:slug", pathname));
+
+const isKnownTemplatePath = (pathname) => {
+  if (KNOWN_EXACT_PATHS.has(pathname)) return true;
+  if (isAdminPath(pathname) || isWriteEditorPath(pathname)) return true;
+
+  return Boolean(
+    matchPath("/categories/:slug", pathname) ||
+      matchPath("/authors/:username", pathname) ||
+      matchPath("/tags/:slug", pathname) ||
+      matchPath("/articles/:slug", pathname) ||
+      isSingleSlugRoute(pathname),
+  );
+};
+
+const shouldNoindexPath = (pathname) =>
+  NOINDEX_EXACT_PATHS.has(pathname) ||
+  isAdminPath(pathname) ||
+  isWriteEditorPath(pathname);
+
+const hasValidPostPayload = (post) => Boolean(post?._id || post?.title);
+
+const resolveArticleAvailability = (queryClient, articleSlug) => {
+  if (!articleSlug) {
+    return {
+      post: null,
+      hasPost: false,
+    };
+  }
+
+  const post = queryClient.getQueryData(["post", articleSlug]);
+  if (hasValidPostPayload(post)) {
+    return {
+      post,
+      hasPost: true,
+    };
+  }
+
+  return {
+    post: null,
+    hasPost: false,
+  };
 };
 
 const getDisplayName = (user, fallbackUsername = "") => {
@@ -324,6 +379,16 @@ const buildStructuredData = ({
 export const getMetadataForUrl = (url, queryClient, origin) => {
   const parsed = new URL(url, origin || "http://localhost");
   const { pathname } = parsed;
+  const singleSlug = isSingleSlugRoute(pathname);
+  const articleSlug = getArticleSlug(pathname);
+  const articleAvailability = resolveArticleAvailability(queryClient, articleSlug);
+  const isExplicitArticlePath = Boolean(matchPath("/articles/:slug", pathname));
+  const isSingleSlugNotFound = Boolean(singleSlug) && !articleAvailability.hasPost;
+  const isKnownPath = isKnownTemplatePath(pathname);
+  const isNotFound =
+    !isKnownPath ||
+    isSingleSlugNotFound ||
+    (isExplicitArticlePath && !articleAvailability.hasPost);
 
   let title = DEFAULT_TITLE;
   let description = DEFAULT_DESCRIPTION;
@@ -373,9 +438,8 @@ export const getMetadataForUrl = (url, queryClient, origin) => {
     description = `Articles tagged with ${tag}.`;
   }
 
-  const articleSlug = getArticleSlug(pathname);
-  if (articleSlug) {
-    const post = queryClient.getQueryData(["post", articleSlug]);
+  if (articleSlug && articleAvailability.hasPost) {
+    const post = articleAvailability.post;
     if (post?.title) {
       title = `${normalizeText(post.title)} | Lama Dev Blog App`;
       description = limitText(post.desc || DEFAULT_DESCRIPTION);
@@ -394,24 +458,37 @@ export const getMetadataForUrl = (url, queryClient, origin) => {
     description = "Create a new account.";
   }
 
-  const canonicalArticleSlug = getArticleSlug(pathname);
+  if (isNotFound) {
+    title = "Page Not Found | Lama Dev Blog App";
+    description = "The requested page could not be found.";
+    ogType = "website";
+    image = toAbsoluteUrl("/favicon.ico", origin);
+  }
+
   const canonicalPath =
-    canonicalArticleSlug && !pathname.startsWith("/articles/")
-      ? `/articles/${encodeURIComponent(canonicalArticleSlug)}`
+    singleSlug && articleAvailability.hasPost
+      ? `/articles/${encodeURIComponent(articleSlug)}`
       : pathname;
   const canonical = new URL(canonicalPath, origin).toString();
-  const structuredData = buildStructuredData({
-    parsed,
-    pathname,
-    queryClient,
-    origin,
-    canonical,
-    articleSlug,
-  });
+  const structuredData = isNotFound
+    ? []
+    : buildStructuredData({
+        parsed,
+        pathname,
+        queryClient,
+        origin,
+        canonical,
+        articleSlug: articleAvailability.hasPost ? articleSlug : null,
+      });
+  const robots = isNotFound || shouldNoindexPath(pathname)
+    ? "noindex,nofollow"
+    : "index,follow";
 
   return {
     title: limitText(title, 120) || DEFAULT_TITLE,
     description: limitText(description) || DEFAULT_DESCRIPTION,
+    robots,
+    statusCode: isNotFound ? 404 : 200,
     canonical,
     ogType,
     ogTitle: limitText(title, 120) || DEFAULT_TITLE,

@@ -14,6 +14,19 @@ const resolve = (target) => path.resolve(__dirname, target);
 const app = express();
 
 let vite;
+const SITEMAP_PAGE_LIMIT = 100;
+const SITEMAP_MAX_PAGES = 20;
+const STATIC_SITEMAP_PATHS = [
+  "/",
+  "/posts",
+  "/about",
+  "/categories/general",
+  "/categories/javascript-frontend",
+  "/categories/backend-devops",
+  "/categories/ai-ml",
+  "/categories/cybersecurity",
+  "/categories/tools-reviews",
+];
 
 const escapeHtml = (value) =>
   String(value || "")
@@ -36,6 +49,146 @@ const getRequestOrigin = (req) => {
   const host = forwardedHost || req.get("host") || "localhost";
   return `${proto}://${host}`;
 };
+
+const normalizeOrigin = (origin) => String(origin || "").replace(/\/+$/, "");
+
+const escapeXml = (value) =>
+  String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+
+const formatSitemapDate = (value) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+};
+
+const getCanonicalOrigin = (req) =>
+  normalizeOrigin(process.env.SITE_URL || getRequestOrigin(req));
+
+const buildStaticSitemapEntries = (origin) => {
+  const lastmod = formatSitemapDate(new Date()) || "2026-04-17";
+
+  return STATIC_SITEMAP_PATHS.map((path) => ({
+    loc: `${origin}${path}`,
+    lastmod,
+  }));
+};
+
+const fetchPostsForSitemap = async (apiBaseUrl, origin) => {
+  const normalizedApi = normalizeOrigin(apiBaseUrl);
+  if (!normalizedApi) return [];
+
+  const entries = [];
+  let page = 1;
+  let hasMore = true;
+
+  while (hasMore && page <= SITEMAP_MAX_PAGES) {
+    const endpoint = `${normalizedApi}/posts?page=${page}&limit=${SITEMAP_PAGE_LIMIT}&sort=newest`;
+    const response = await fetch(endpoint, {
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Sitemap post fetch failed: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const posts = Array.isArray(payload?.posts) ? payload.posts : [];
+
+    for (const post of posts) {
+      if (!post?.slug) continue;
+
+      entries.push({
+        loc: `${origin}/articles/${encodeURIComponent(post.slug)}`,
+        lastmod: formatSitemapDate(post.updatedAt || post.createdAt),
+      });
+    }
+
+    hasMore = Boolean(payload?.hasMore) && posts.length > 0;
+    page += 1;
+  }
+
+  return entries;
+};
+
+const mergeSitemapEntries = (entries) => {
+  const byLoc = new Map();
+
+  for (const entry of entries) {
+    if (!entry?.loc) continue;
+
+    const existing = byLoc.get(entry.loc);
+    if (!existing) {
+      byLoc.set(entry.loc, {
+        loc: entry.loc,
+        lastmod: entry.lastmod || "",
+      });
+      continue;
+    }
+
+    if (entry.lastmod && (!existing.lastmod || entry.lastmod > existing.lastmod)) {
+      existing.lastmod = entry.lastmod;
+    }
+  }
+
+  return Array.from(byLoc.values());
+};
+
+const buildSitemapXml = (entries) => {
+  const items = entries
+    .map(
+      (entry) => `<url>
+  <loc>${escapeXml(entry.loc)}</loc>${entry.lastmod ? `
+  <lastmod>${escapeXml(entry.lastmod)}</lastmod>` : ""}
+</url>`,
+    )
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${items}
+</urlset>`;
+};
+
+app.get("/robots.txt", (req, res) => {
+  const origin = getCanonicalOrigin(req);
+  const body = `User-agent: *
+Disallow: /admin/
+Disallow: /write
+Disallow: /login
+Disallow: /register
+Allow: /
+
+Sitemap: ${origin}/sitemap.xml
+`;
+
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.status(200).end(body);
+});
+
+app.get("/sitemap.xml", async (req, res) => {
+  const origin = getCanonicalOrigin(req);
+  const staticEntries = buildStaticSitemapEntries(origin);
+
+  try {
+    const postEntries = await fetchPostsForSitemap(process.env.VITE_API_URL, origin);
+    const sitemapEntries = mergeSitemapEntries([...staticEntries, ...postEntries]);
+    const xml = buildSitemapXml(sitemapEntries);
+
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.status(200).end(xml);
+  } catch (error) {
+    console.error("[sitemap]", error?.message || error);
+    const xml = buildSitemapXml(staticEntries);
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.status(200).end(xml);
+  }
+});
 
 if (!isProd) {
   vite = await createViteServer({
@@ -63,8 +216,17 @@ if (!isProd) {
 }
 
 app.use("*", async (req, res) => {
-  const url = req.originalUrl;
   const origin = getRequestOrigin(req);
+  const parsedUrl = new URL(req.originalUrl, origin);
+
+  if (parsedUrl.pathname.length > 1 && parsedUrl.pathname.endsWith("/")) {
+    const normalizedPath = parsedUrl.pathname.replace(/\/+$/, "");
+    const location = `${normalizedPath}${parsedUrl.search}`;
+    res.redirect(301, location);
+    return;
+  }
+
+  const url = `${parsedUrl.pathname}${parsedUrl.search}`;
 
   try {
     let template;
@@ -92,6 +254,7 @@ app.use("*", async (req, res) => {
     const replacements = {
       "<!--ssr-title-->": escapeHtml(metadata?.title),
       "<!--ssr-description-->": escapeHtml(metadata?.description),
+      "<!--ssr-robots-->": escapeHtml(metadata?.robots),
       "<!--ssr-canonical-->": escapeHtml(metadata?.canonical),
       "<!--ssr-og-type-->": escapeHtml(metadata?.ogType),
       "<!--ssr-og-title-->": escapeHtml(metadata?.ogTitle),
@@ -112,7 +275,10 @@ app.use("*", async (req, res) => {
       template,
     );
 
-    res.status(200).setHeader("Content-Type", "text/html").end(html);
+    res
+      .status(Number.isInteger(metadata?.statusCode) ? metadata.statusCode : 200)
+      .setHeader("Content-Type", "text/html")
+      .end(html);
   } catch (error) {
     vite?.ssrFixStacktrace(error);
     console.error(error);

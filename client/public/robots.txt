@@ -1,4 +1,8 @@
 User-agent: *
+Disallow: /admin/
+Disallow: /write
+Disallow: /login
+Disallow: /register
 Allow: /
 
 Sitemap: https://lamalog.pp.ua/sitemap.xml

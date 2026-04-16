@@ -12,6 +12,11 @@ const RESERVED_SLUGS = new Set([
   "admin",
   "login",
   "register",
+  "search",
+  "robots.txt",
+  "sitemap.xml",
+  "sitemap_index.xml",
+  "favicon.ico",
 ]);
 
 const api = axios.create({
