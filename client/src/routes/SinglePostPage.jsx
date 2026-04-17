@@ -2,12 +2,12 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Image from "../components/Image";
 import PostMenuActions from "../components/PostMenuActions";
-import Search from "../components/Search";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "timeago.js";
 
 const Comments = lazy(() => import("../components/Comments"));
+const Search = lazy(() => import("../components/Search"));
 
 const fetchPost = async (slug) => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts/${slug}`);
@@ -144,7 +144,9 @@ const formatDate = (dateValue) => {
 const SinglePostPage = () => {
   const { slug } = useParams();
   const [shouldRenderComments, setShouldRenderComments] = useState(false);
+  const [shouldRenderSearch, setShouldRenderSearch] = useState(false);
   const commentsAnchorRef = useRef(null);
+  const searchAnchorRef = useRef(null);
 
   const { isPending, error, data } = useQuery({
     queryKey: ["post", slug],
@@ -156,6 +158,46 @@ const SinglePostPage = () => {
     queryFn: () => fetchPostsByCategory(data.category, 4),
     enabled: Boolean(data?.category),
   });
+
+  useEffect(() => {
+    if (shouldRenderComments) return undefined;
+
+    const anchor = commentsAnchorRef.current;
+    if (!anchor) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldRenderComments(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "400px 0px" },
+    );
+
+    observer.observe(anchor);
+    return () => observer.disconnect();
+  }, [shouldRenderComments]);
+
+  useEffect(() => {
+    if (shouldRenderSearch) return undefined;
+
+    const anchor = searchAnchorRef.current;
+    if (!anchor) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldRenderSearch(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "250px 0px" },
+    );
+
+    observer.observe(anchor);
+    return () => observer.disconnect();
+  }, [shouldRenderSearch]);
 
   if (isPending) return "loading...";
   if (error) return "Something went wrong!" + error.message;
@@ -177,26 +219,6 @@ const SinglePostPage = () => {
   const relatedPosts = (relatedData?.posts || [])
     .filter((post) => post._id !== data._id)
     .slice(0, 3);
-
-  useEffect(() => {
-    if (shouldRenderComments) return undefined;
-
-    const anchor = commentsAnchorRef.current;
-    if (!anchor) return undefined;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setShouldRenderComments(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "400px 0px" },
-    );
-
-    observer.observe(anchor);
-    return () => observer.disconnect();
-  }, [shouldRenderComments]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -360,7 +382,17 @@ const SinglePostPage = () => {
             </>
           )}
           <h1 className="mt-8 mb-4 text-sm font-medium">Search</h1>
-          <Search />
+          <div ref={searchAnchorRef} className="min-h-[44px]">
+            {shouldRenderSearch ? (
+              <Suspense fallback={<p className="text-sm text-gray-500">Loading search...</p>}>
+                <Search />
+              </Suspense>
+            ) : (
+              <p className="text-sm text-gray-500">
+                Search loads when this block gets close to the viewport.
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

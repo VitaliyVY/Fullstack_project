@@ -3,9 +3,45 @@ import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
 import getOrCreateUser from "../lib/getOrCreateUser.js";
 
+// Simple in-memory caches for post detail and post lists
+const postCache = new Map();
+const postsListCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+const isFreshCacheEntry = (entry, now) => entry && now - entry.timestamp < CACHE_TTL;
+
+const clearPostCaches = () => {
+  postCache.clear();
+  postsListCache.clear();
+};
+
+const buildPostsListCacheKey = ({
+  page,
+  limit,
+  cat,
+  tag,
+  author,
+  searchQuery,
+  sortQuery,
+  featured,
+}) => {
+  const normalizedTag = Array.isArray(tag) ? [...tag].sort() : tag || "";
+  return JSON.stringify({
+    page,
+    limit,
+    cat: cat || "",
+    tag: normalizedTag,
+    author: author || "",
+    search: searchQuery || "",
+    sort: sortQuery || "",
+    featured: String(Boolean(featured)),
+  });
+};
+
 export const getPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 2;
+  const now = Date.now();
 
   const query = {};
 
@@ -15,6 +51,24 @@ export const getPosts = async (req, res) => {
   const searchQuery = req.query.search;
   const sortQuery = req.query.sort;
   const featured = req.query.featured;
+  const listCacheKey = `posts_${buildPostsListCacheKey({
+    page,
+    limit,
+    cat,
+    tag,
+    author,
+    searchQuery,
+    sortQuery,
+    featured,
+  })}`;
+
+  const cachedList = postsListCache.get(listCacheKey);
+  if (isFreshCacheEntry(cachedList, now)) {
+    return res.status(200).json(cachedList.data);
+  }
+  if (cachedList) {
+    postsListCache.delete(listCacheKey);
+  }
 
   if (cat) {
     query.category = cat;
@@ -79,14 +133,34 @@ export const getPosts = async (req, res) => {
   const totalPosts = await Post.countDocuments(query);
   const hasMore = page * limit < totalPosts;
 
-  res.status(200).json({ posts, hasMore, totalPosts });
+  const payload = { posts, hasMore, totalPosts };
+  postsListCache.set(listCacheKey, { data: payload, timestamp: now });
+  res.status(200).json(payload);
 };
 
 export const getPost = async (req, res) => {
-  const post = await Post.findOne({ slug: req.params.slug }).populate(
+  const slug = req.params.slug;
+  const cacheKey = `post_${slug}`;
+  const now = Date.now();
+
+  // Check cache
+  if (postCache.has(cacheKey)) {
+    const cachedPost = postCache.get(cacheKey);
+    if (isFreshCacheEntry(cachedPost, now)) {
+      return res.status(200).json(cachedPost.data);
+    }
+    postCache.delete(cacheKey);
+  }
+
+  const post = await Post.findOne({ slug }).populate(
     "user",
     "username firstName lastName img bio fullBio linkedinUrl githubUrl twitterUrl websiteUrl email jobTitle yearsExperience expertise awards alumniOf",
   );
+
+  if (post) {
+    postCache.set(cacheKey, { data: post, timestamp: now });
+  }
+
   res.status(200).json(post);
 };
 
@@ -118,6 +192,7 @@ export const createPost = async (req, res) => {
   const newPost = new Post({ user: user._id, slug, ...req.body });
 
   const post = await newPost.save();
+  clearPostCaches();
   res.status(200).json(post);
 };
 
@@ -132,6 +207,7 @@ export const deletePost = async (req, res) => {
 
   if (role === "admin") {
     await Post.findByIdAndDelete(req.params.id);
+    clearPostCaches();
     return res.status(200).json("Post has been deleted");
   }
 
@@ -146,6 +222,7 @@ export const deletePost = async (req, res) => {
     return res.status(403).json("You can delete only your posts!");
   }
 
+  clearPostCaches();
   res.status(200).json("Post has been deleted");
 };
 
@@ -181,6 +258,7 @@ export const updatePost = async (req, res) => {
     { new: true },
   );
 
+  clearPostCaches();
   res.status(200).json(updatedPost);
 };
 
@@ -214,6 +292,7 @@ export const featurePost = async (req, res) => {
     { new: true },
   );
 
+  clearPostCaches();
   res.status(200).json(updatedPost);
 };
 

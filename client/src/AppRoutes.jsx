@@ -8,7 +8,6 @@ import SinglePostPage from "./routes/SinglePostPage.jsx";
 import CategoryPage from "./routes/CategoryPage.jsx";
 import AuthorPage from "./routes/AuthorPage.jsx";
 import TagPage from "./routes/TagPage.jsx";
-
 const Write = lazy(() => import("./routes/Write.jsx"));
 const AdminPosts = lazy(() => import("./routes/AdminPosts.jsx"));
 const AdminAuthors = lazy(() => import("./routes/AdminAuthors.jsx"));

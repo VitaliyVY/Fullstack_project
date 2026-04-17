@@ -88,7 +88,7 @@ const Homepage = () => {
           been the most commonly used programming language for eight consecutive
           years, with 65.36% of developers using it regularly. This statistic
           underscores the importance of mastering JavaScript fundamentals,
-          whether you're working on frontend interfaces or server-side logic.
+          whether you&apos;re working on frontend interfaces or server-side logic.
           Our guides cover everything from DOM manipulation and event handling
           to advanced topics like closures, prototypes, and performance
           optimization techniques.
@@ -136,7 +136,7 @@ const Homepage = () => {
           connections efficiently. Our articles provide practical insights on
           database design, caching strategies, and microservices architecture,
           helping you build robust and scalable backend systems that can grow
-          with your application's needs.
+          with your application&apos;s needs.
         </p>
 
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
@@ -172,7 +172,7 @@ const Homepage = () => {
           considerations in AI development.
         </p>
         <p className="text-lg leading-relaxed mb-6">
-          According to McKinsey's Global AI Survey 2023, 55% of companies have
+          According to McKinsey&apos;s Global AI Survey 2023, 55% of companies have
           adopted AI in at least one function, highlighting the growing
           importance of AI skills in the tech industry. Our articles provide
           accessible introductions to machine learning concepts, practical
@@ -185,13 +185,13 @@ const Homepage = () => {
             Conclusion: Start Your Tech Learning Journey Today
           </h2>
           <p className="text-lg leading-relaxed mb-6">
-            Whether you're passionate about JavaScript programming, frontend
+            Whether you&apos;re passionate about JavaScript programming, frontend
             design, backend architecture, DevOps automation, or AI innovation,
             our tech blog offers comprehensive resources to support your growth
             as a developer. We believe in practical, hands-on learning that
             combines theoretical knowledge with real-world application. By
             staying updated with the latest trends and best practices in web
-            development, software engineering, and emerging technologies, you'll
+            development, software engineering, and emerging technologies, you&apos;ll
             be well-equipped to tackle complex projects and advance your career.
           </p>
           <p className="text-lg leading-relaxed mb-6">

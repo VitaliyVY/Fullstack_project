@@ -20,6 +20,18 @@ app.use(clerkMiddleware());
 app.use("/webhooks", webhookRouter);
 app.use(express.json());
 
+// Cache headers for public posts API responses
+app.use("/posts", (req, res, next) => {
+  if (req.method === "GET") {
+    const cacheControl =
+      req.path === "/" || req.path === ""
+        ? "public, max-age=120, stale-while-revalidate=300"
+        : "public, max-age=300, stale-while-revalidate=600";
+    res.set("Cache-Control", cacheControl);
+  }
+  next();
+});
+
 // app.get("/test",(req,res)=>{
 //   res.status(200).send("it works!")
 // })
