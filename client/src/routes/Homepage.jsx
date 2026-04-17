@@ -213,11 +213,15 @@ const Homepage = () => {
         </div>
       </div>
       {/* CATEGORIES */}
-      <MainCategories />
+      <div className="defer-render">
+        <MainCategories />
+      </div>
       {/* FEATURED POSTS */}
-      <FeaturedPosts />
+      <div className="defer-render">
+        <FeaturedPosts />
+      </div>
       {/* POST LIST */}
-      <div className="">
+      <div className="defer-render">
         <h2 className="my-8 text-2xl text-gray-600">Recent Posts</h2>
         <PostList />
       </div>

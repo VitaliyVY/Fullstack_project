@@ -1,11 +1,13 @@
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Image from "../components/Image";
 import PostMenuActions from "../components/PostMenuActions";
 import Search from "../components/Search";
-import Comments from "../components/Comments";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "timeago.js";
+
+const Comments = lazy(() => import("../components/Comments"));
 
 const fetchPost = async (slug) => {
   const res = await axios.get(`${import.meta.env.VITE_API_URL}/posts/${slug}`);
@@ -141,6 +143,8 @@ const formatDate = (dateValue) => {
 
 const SinglePostPage = () => {
   const { slug } = useParams();
+  const [shouldRenderComments, setShouldRenderComments] = useState(false);
+  const commentsAnchorRef = useRef(null);
 
   const { isPending, error, data } = useQuery({
     queryKey: ["post", slug],
@@ -173,6 +177,26 @@ const SinglePostPage = () => {
   const relatedPosts = (relatedData?.posts || [])
     .filter((post) => post._id !== data._id)
     .slice(0, 3);
+
+  useEffect(() => {
+    if (shouldRenderComments) return undefined;
+
+    const anchor = commentsAnchorRef.current;
+    if (!anchor) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldRenderComments(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "400px 0px" },
+    );
+
+    observer.observe(anchor);
+    return () => observer.disconnect();
+  }, [shouldRenderComments]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -219,14 +243,22 @@ const SinglePostPage = () => {
         </div>
         {data.img && (
           <div className="hidden lg:block w-2/5">
-            <Image src={data.img} w="600" className="rounded-2xl" />
+            <Image
+              src={data.img}
+              w="600"
+              h="338"
+              sizes="(min-width: 1024px) 40vw, 100vw"
+              priority
+              className="rounded-2xl"
+              alt={data.title || "Article image"}
+            />
           </div>
         )}
       </div>
 
       <div className="flex flex-col md:flex-row gap-12 items-start">
         <div
-          className="lg:text-lg min-w-0 w-full md:w-[calc(100%-20rem)] lg:w-[calc(100%-24rem)] text-justify break-words [&_*]:max-w-full [&_*]:break-words [&_img]:h-auto [&_iframe]:w-full"
+          className="article-content lg:text-lg min-w-0 w-full md:w-[calc(100%-20rem)] lg:w-[calc(100%-24rem)] text-justify break-words [&_*]:max-w-full [&_*]:break-words [&_img]:h-auto [&_iframe]:w-full"
           dangerouslySetInnerHTML={{ __html: normalizedContent }}
         />
 
@@ -240,6 +272,8 @@ const SinglePostPage = () => {
                   className="w-12 h-12 rounded-full object-cover"
                   w="48"
                   h="48"
+                  sizes="48px"
+                  alt={`${authorName} avatar`}
                 />
               ) : (
                 <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-700">
@@ -330,7 +364,7 @@ const SinglePostPage = () => {
         </div>
       </div>
 
-      <section className="flex flex-col gap-4">
+      <section className="defer-render flex flex-col gap-4">
         <h2 className="text-2xl md:text-3xl font-semibold">Схожі статті</h2>
         {isRelatedPending ? (
           <p className="text-sm text-gray-500">Завантаження...</p>
@@ -347,6 +381,9 @@ const SinglePostPage = () => {
                       src={post.img}
                       className="rounded-xl object-cover w-full h-44"
                       w="480"
+                      h="176"
+                      sizes="(min-width: 1024px) 20vw, (min-width: 768px) 33vw, 100vw"
+                      alt={post.title || "Related article image"}
                     />
                   </Link>
                 )}
@@ -375,7 +412,15 @@ const SinglePostPage = () => {
         )}
       </section>
 
-      <Comments postId={data._id} />
+      <div ref={commentsAnchorRef} className="defer-render">
+        {shouldRenderComments ? (
+          <Suspense fallback={<p className="text-sm text-gray-500">Loading comments...</p>}>
+            <Comments postId={data._id} />
+          </Suspense>
+        ) : (
+          <p className="text-sm text-gray-500">Comments load when the section is near viewport.</p>
+        )}
+      </div>
     </div>
   );
 };

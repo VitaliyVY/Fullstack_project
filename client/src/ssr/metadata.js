@@ -79,6 +79,23 @@ const unique = (values) => {
   return result;
 };
 
+const getPreloadImages = ({ pathname, queryClient, origin, articleAvailability }) => {
+  const images = [];
+
+  if (pathname === "/") {
+    const featuredPosts = queryClient.getQueryData(["featuredPosts"])?.posts;
+    const heroImage = toAbsoluteUrl(featuredPosts?.[0]?.img, origin);
+    if (heroImage) images.push(heroImage);
+  }
+
+  if (articleAvailability?.hasPost) {
+    const articleImage = toAbsoluteUrl(articleAvailability.post?.img, origin);
+    if (articleImage) images.push(articleImage);
+  }
+
+  return unique(images);
+};
+
 const getPage = (searchParams) => {
   const raw = Number(searchParams.get("page"));
   return Number.isFinite(raw) && raw > 0 ? raw : 1;
@@ -480,6 +497,12 @@ export const getMetadataForUrl = (url, queryClient, origin) => {
         canonical,
         articleSlug: articleAvailability.hasPost ? articleSlug : null,
       });
+  const preloadImages = getPreloadImages({
+    pathname,
+    queryClient,
+    origin,
+    articleAvailability,
+  });
   const robots = isNotFound || shouldNoindexPath(pathname)
     ? "noindex,nofollow"
     : "index,follow";
@@ -499,6 +522,7 @@ export const getMetadataForUrl = (url, queryClient, origin) => {
     twitterTitle: limitText(title, 120) || DEFAULT_TITLE,
     twitterDescription: limitText(description) || DEFAULT_DESCRIPTION,
     twitterImage: image,
+    preloadImages,
     structuredData,
   };
 };

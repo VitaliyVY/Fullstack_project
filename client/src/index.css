@@ -9,6 +9,25 @@ body {
   font-family: "Montserrat", sans-serif;
 }
 
+.article-content img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.article-content iframe {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+.defer-render {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 900px;
+}
+
 .animatedButton {
   animation-duration: 10000ms;
 }

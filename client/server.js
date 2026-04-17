@@ -27,6 +27,11 @@ const STATIC_SITEMAP_PATHS = [
   "/categories/cybersecurity",
   "/categories/tools-reviews",
 ];
+const HTML_CACHE_TTL_MS = Number(process.env.HTML_CACHE_TTL_MS || 60_000);
+const HTML_CACHE_MAX_ENTRIES = Number(process.env.HTML_CACHE_MAX_ENTRIES || 200);
+const HTML_CACHE_CONTROL = "public, max-age=0, s-maxage=60, stale-while-revalidate=300";
+const NO_STORE_CACHE_CONTROL = "no-store";
+const htmlResponseCache = new Map();
 
 const escapeHtml = (value) =>
   String(value || "")
@@ -51,6 +56,58 @@ const getRequestOrigin = (req) => {
 };
 
 const normalizeOrigin = (origin) => String(origin || "").replace(/\/+$/, "");
+
+const buildPreloadLinksHtml = (images) =>
+  (Array.isArray(images) ? images : [])
+    .filter(Boolean)
+    .map(
+      (href) =>
+        `<link rel="preload" as="image" href="${escapeHtml(
+          href,
+        )}" fetchpriority="high" />`,
+    )
+    .join("");
+
+const getHtmlCacheKey = (url) => url;
+
+const isCacheablePath = (pathname) => {
+  if (!pathname) return false;
+  if (pathname === "/login" || pathname === "/register") return false;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/write")) return false;
+  if (pathname === "/robots.txt" || pathname === "/sitemap.xml") return false;
+  return true;
+};
+
+const canUseHtmlCache = (req, pathname) =>
+  isProd &&
+  req.method === "GET" &&
+  !req.headers.cookie &&
+  !req.headers.authorization &&
+  isCacheablePath(pathname);
+
+const getCachedHtmlResponse = (key) => {
+  const cached = htmlResponseCache.get(key);
+  if (!cached) return null;
+
+  if (cached.expiresAt <= Date.now()) {
+    htmlResponseCache.delete(key);
+    return null;
+  }
+
+  return cached;
+};
+
+const setCachedHtmlResponse = (key, payload) => {
+  if (htmlResponseCache.size >= HTML_CACHE_MAX_ENTRIES) {
+    const oldestKey = htmlResponseCache.keys().next().value;
+    if (oldestKey) htmlResponseCache.delete(oldestKey);
+  }
+
+  htmlResponseCache.set(key, {
+    ...payload,
+    expiresAt: Date.now() + HTML_CACHE_TTL_MS,
+  });
+};
 
 const escapeXml = (value) =>
   String(value || "")
@@ -168,6 +225,7 @@ Sitemap: ${origin}/sitemap.xml
 `;
 
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=300");
   res.status(200).end(body);
 });
 
@@ -181,11 +239,13 @@ app.get("/sitemap.xml", async (req, res) => {
     const xml = buildSitemapXml(sitemapEntries);
 
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=300");
     res.status(200).end(xml);
   } catch (error) {
     console.error("[sitemap]", error?.message || error);
     const xml = buildSitemapXml(staticEntries);
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=120");
     res.status(200).end(xml);
   }
 });
@@ -227,6 +287,20 @@ app.use("*", async (req, res) => {
   }
 
   const url = `${parsedUrl.pathname}${parsedUrl.search}`;
+  const cacheKey = getHtmlCacheKey(url);
+
+  if (canUseHtmlCache(req, parsedUrl.pathname)) {
+    const cached = getCachedHtmlResponse(cacheKey);
+    if (cached) {
+      res
+        .status(cached.statusCode)
+        .setHeader("Content-Type", "text/html")
+        .setHeader("Cache-Control", cached.cacheControl)
+        .setHeader("X-HTML-Cache", "HIT")
+        .end(cached.html);
+      return;
+    }
+  }
 
   try {
     let template;
@@ -242,6 +316,7 @@ app.use("*", async (req, res) => {
     }
 
     const { appHtml, queryState, metadata } = await render(url, { origin });
+    const preloadLinksHtml = buildPreloadLinksHtml(metadata?.preloadImages);
     const structuredDataHtml = Array.isArray(metadata?.structuredData)
       ? metadata.structuredData
           .map(
@@ -265,6 +340,7 @@ app.use("*", async (req, res) => {
       "<!--ssr-twitter-title-->": escapeHtml(metadata?.twitterTitle),
       "<!--ssr-twitter-description-->": escapeHtml(metadata?.twitterDescription),
       "<!--ssr-twitter-image-->": escapeHtml(metadata?.twitterImage),
+      "<!--ssr-preload-links-->": preloadLinksHtml,
       "<!--ssr-structured-data-->": structuredDataHtml,
       "<!--ssr-outlet-->": appHtml,
       "<!--ssr-state-->": queryState,
@@ -275,10 +351,23 @@ app.use("*", async (req, res) => {
       template,
     );
 
+    const statusCode = Number.isInteger(metadata?.statusCode) ? metadata.statusCode : 200;
+    const cacheControl = statusCode === 200 ? HTML_CACHE_CONTROL : NO_STORE_CACHE_CONTROL;
+
     res
-      .status(Number.isInteger(metadata?.statusCode) ? metadata.statusCode : 200)
+      .status(statusCode)
       .setHeader("Content-Type", "text/html")
+      .setHeader("Cache-Control", cacheControl)
+      .setHeader("X-HTML-Cache", "MISS")
       .end(html);
+
+    if (statusCode === 200 && canUseHtmlCache(req, parsedUrl.pathname)) {
+      setCachedHtmlResponse(cacheKey, {
+        html,
+        statusCode,
+        cacheControl,
+      });
+    }
   } catch (error) {
     vite?.ssrFixStacktrace(error);
     console.error(error);

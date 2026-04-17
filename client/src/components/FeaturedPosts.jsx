@@ -35,6 +35,10 @@ const FeaturedPosts = () => {
             src={posts[0].img}
             className="rounded-3xl object-cover"
             w="895"
+            h="503"
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            priority
+            alt={posts[0].title || "Featured article image"}
           />
         )}
         {/* details */}
@@ -67,6 +71,9 @@ const FeaturedPosts = () => {
                   src={posts[1].img}
                   className="rounded-3xl object-cover w-full h-full"
                   w="298"
+                  h="168"
+                  sizes="(min-width: 1024px) 16vw, 33vw"
+                  alt={posts[1].title || "Featured article image"}
                 />
               </div>
             )}
@@ -104,6 +111,9 @@ const FeaturedPosts = () => {
                   src={posts[2].img}
                   className="rounded-3xl object-cover w-full h-full"
                   w="298"
+                  h="168"
+                  sizes="(min-width: 1024px) 16vw, 33vw"
+                  alt={posts[2].title || "Featured article image"}
                 />
               </div>
             )}
@@ -141,6 +151,9 @@ const FeaturedPosts = () => {
                   src={posts[3].img}
                   className="rounded-3xl object-cover w-full h-full"
                   w="298"
+                  h="168"
+                  sizes="(min-width: 1024px) 16vw, 33vw"
+                  alt={posts[3].title || "Featured article image"}
                 />
               </div>
             )}
