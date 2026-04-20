@@ -18,7 +18,7 @@
 | `<title>`          | Lama Dev Blog App (17 символів)                                                                                              | Ні                | Занадто короткий, не містить ключових слів |
 | `meta description` | Tech blog with articles about JavaScript, frontend, backend, DevOps, AI, machine learning, and cybersecurity. (109 символів) | Так               | Занадто короткий, не містить ключових слів |
 | `H1`               | Welcome to our Tech Blog! (є також ще один H1 — "Recent Posts")                                                              | Ні                | Два H1 на сторінці (має бути один)         |
-| `Кількість H2`     | 0 (обидва заголовки позначені як H1)                                                                                         | Ні                | Відсутня правильна ієрархія заголовків     |
+| `Кількість H2`     | 2 (обидва заголовки позначені як H1)                                                                                         | Ні                | Відсутня правильна ієрархія заголовків     |
 | `URL`              | https://lamalog.pp.ua/                                                                                                       | Так               | Немає                                      |
 | `Alt у зображень`  | Немає даних                                                                                                                  | Ні                | Відсутні alt-атрибути                      |
 | `Schema.org`       | Відсутня                                                                                                                     | Ні                | Немає структурованих даних                 |
@@ -354,9 +354,9 @@ Canonical тег присутній та вказує на основний URL 
 ```
 Крок 1. Обрали 3 ключових запити зі свого семантичного ядра (лаб.№3)
 
-- docker tutorial
-- react hooks tutorial
-- node.js api tutorial
+- javascript
+- ai
+- devops
 
 Крок 2. Для кожного виконали пошук:
          site:yourdomain.ua "ключовий запит"
