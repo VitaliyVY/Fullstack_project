@@ -14,3 +14,7 @@ This frontend now runs with Vite SSR directly in the `client` app.
 - `VITE_CLERK_PUBLISHABLE_KEY`
 - `VITE_IK_URL_ENDPOINT`
 - `VITE_IK_PUBLIC_KEY`
+
+## Optional Environment Variables
+
+- `VITE_GA_MEASUREMENT_ID` - enables Google Analytics 4 pageview tracking

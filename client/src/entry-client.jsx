@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 import AppRoutes from "./AppRoutes.jsx";
 import { createQueryClient } from "./lib/queryClient.js";
+import AnalyticsTracker from "./components/AnalyticsTracker.jsx";
 
 const queryClient = createQueryClient();
 const dehydratedState = window.__REACT_QUERY_STATE__ || undefined;
@@ -19,6 +20,7 @@ const appCore = (
   <QueryClientProvider client={queryClient}>
     <HydrationBoundary state={dehydratedState}>
       <BrowserRouter>
+        <AnalyticsTracker />
         <AppRoutes />
       </BrowserRouter>
       <ToastContainer position="bottom-right" />
