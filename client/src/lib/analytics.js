@@ -1,7 +1,10 @@
 const GA_SRC_BASE = "https://www.googletagmanager.com/gtag/js?id=";
+const GA_FALLBACK_MEASUREMENT_ID = "G-8736RY31KQ";
 
 const getMeasurementId = () =>
-  String(import.meta.env.VITE_GA_MEASUREMENT_ID || "").trim();
+  String(
+    import.meta.env.VITE_GA_MEASUREMENT_ID || GA_FALLBACK_MEASUREMENT_ID,
+  ).trim();
 
 const getWindow = () => (typeof window === "undefined" ? null : window);
 
