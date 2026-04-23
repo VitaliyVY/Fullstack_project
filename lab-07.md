@@ -112,45 +112,56 @@
 
 #### 2.1 - GSC аналіз (до кліку)
 
-Станом на підготовку цього звіту в репозиторії є лише підтверджений скріншот GSC Performance (діапазон `3 months`, Search type: `Web`) без CSV-експорту на рівні запитів/URL.
+У репозиторії є реальний експорт GSC (дата експорту: 2026-04-22, фільтр: `Тип пошуку = Інтернет`, період: `Останні 3 місяці`).
 
-Підтверджені агреговані метрики з артефакту:
+Підтверджені дані з CSV:
 
-| Джерело | Період | Clicks | Impressions | CTR | Avg position | Доказ |
-| --- | --- | ---: | ---: | ---: | ---: | --- |
-| Google Search Console Performance | 3 months | 6 | 17 | 35.3% | 2.4 | `lab_4_info/Google_Search_Console.png` |
-| Google Search Console Pages export (homepage) | 3 months | 12 | 43 | 27.91% | 3.14 | `https___lamalog.pp.ua_-Performance-on-Search-2026-04-22/Сторінки.csv` |
-| Google Search Console Pages export (sitemap.xml) | 3 months | 1 | 5 | 20% | 2.2 | `https___lamalog.pp.ua_-Performance-on-Search-2026-04-22/Сторінки.csv` |
+| Query/URL | Сегмент | Impressions | Clicks | CTR | Avg position | Тренд (MoM) | Доказ |
+| --- | --- | ---: | ---: | ---: | ---: | --- | --- |
+| `lama dev` | brand / all devices | 6 | 0 | 0% | 8 | N/A | `https___lamalog.pp.ua_-Performance-on-Search-2026-04-22/Запити.csv` |
+| `https://lamalog.pp.ua/` | landing page | 43 | 12 | 27.91% | 3.14 | N/A | `https___lamalog.pp.ua_-Performance-on-Search-2026-04-22/Сторінки.csv` |
+| `https://lamalog.pp.ua/sitemap.xml` | technical page | 5 | 1 | 20% | 2.2 | N/A | `https___lamalog.pp.ua_-Performance-on-Search-2026-04-22/Сторінки.csv` |
+| `Desktop` | device | 37 | 13 | 35.14% | 2.68 | N/A | `https___lamalog.pp.ua_-Performance-on-Search-2026-04-22/Пристрої.csv` |
+| `Mobile` | device | 6 | 0 | 0% | 6 | N/A | `https___lamalog.pp.ua_-Performance-on-Search-2026-04-22/Пристрої.csv` |
 
-Що поки неможливо підтвердити без додаткового експорту:
-- вибірка 15-30 запитів;
-- сегментація brand/non-brand, mobile/desktop, informational/commercial;
-- MoM-тренд по кожному запиту/URL;
-- page-level GSC для більшості URL із landing-таблиці;
-- валідні GA4 метрики по органічному трафіку.
+Що ще відсутнє і де це взяти:
+- Вибірка 15-30 запитів: у GSC `Ефективність -> Результати пошуку -> Запити -> Експорт CSV` (зараз у файлі лише 1 запит).
+- Segment brand/non-brand: у GSC додати `+ Новий фільтр -> Запит`, зробити 2 експорти (`містить бренд` і `не містить бренд`).
+- Segment mobile/desktop: у GSC вкладка `Пристрої` або фільтр `Пристрій`, експортувати окремо по кожному типу.
+- Segment informational/commercial: у GSC фільтр `Запит` (за патернами наміру) і окремі експорти по групах.
+- MoM по query/URL: у GSC `Дата -> Порівняти` (наприклад, `останні 28 днів` проти `попередніх 28 днів`) і повторний експорт таблиць `Запити` та `Сторінки`.
 
 #### 2.2 - GA4 аналіз (після кліку)
 
-Підтверджених експортів GA4 у репозиторії немає, але працездатність трекінгу підтверджена в Realtime:
+У репозиторії є частковий GA4-експорт `download2.csv` (період `2026-04-22` - `2026-04-23`) та перевірка Realtime:
 
 | Джерело | Дата перевірки | Підтверджений факт | Доказ |
 | --- | --- | --- | --- |
 | GA4 Realtime (`Кількість подій за Назва події`) | 2026-04-22 | `page_view = 25` | скріншот перевірки в інтерфейсі GA4 |
+| GA4 Explore export (`Цільова сторінка`) | 2026-04-22 - 2026-04-23 | Є дані по `/` і `/write` | `download2.csv` |
 
 Тому таблиця нижче заповнена тільки перевіреним статусом доступності агрегованих даних:
 
 | Landing page | Organic sessions | Engaged sessions | Engagement rate | Avg engagement time | Key events | Conversion rate | Висновок |
 | --- | ---: | ---: | ---: | --- | --- | ---: | --- |
-| / | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
+| / | 1 | 0 | 0 | 0 s | N/A | N/A | За `download2.csv` є базові GA4-метрики; для key events і conversion потрібен окремий експорт. |
 | /posts | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
 | /categories/javascript-frontend | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
 | /categories/backend-devops | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
 | /articles/1-2 | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
 | /about | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
 | /authors/user-wyIRHoeo | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
-| /write | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
+| /write | 1 | 1 | 1 | 31 s | N/A | N/A | За `download2.csv` є базові GA4-метрики; для key events і conversion потрібен окремий експорт. |
 | /login | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
 | /register | N/A | N/A | N/A | N/A | N/A | N/A | Потрібен експорт GA4 за `google/organic`. |
+
+Що ще відсутнє і де це взяти:
+- `Organic sessions`, `Engaged sessions`, `Engagement rate`, `Avg engagement time` для всіх 10 URL:
+  `GA4 -> Reports -> Engagement -> Landing page`, фільтр `Session source / medium = google / organic`, період `останні 28 днів`, експорт CSV.
+- `Key events` і `Conversion rate` по кожному landing URL:
+  `GA4 -> Reports -> Engagement -> Events` (або `Advertising -> Attribution`), додати зріз по `Landing page + query string`, застосувати фільтр `google / organic`, експорт CSV.
+- Щоб бачити `form_start`, `form_submit`, `click_cta_primary` по URL:
+  `GA4 -> Explore -> Free form`, рядки: `Landing page`, стовпці/фільтри: `Event name`, метрика: `Event count`, експорт CSV.
 
 #### 2.3 - Bounce і dwell context-аналіз
 
@@ -179,4 +190,4 @@
 | Старт форми | form_start | /write, /login, /register | Ранній сигнал наміру до конверсії | N/A | +20% до поточного значення |
 | Успішний submit форми | form_submit | /login, /register, /write | Фінальна оцінка внеску SEO у цільову дію | N/A | +15% до поточного значення |
 
-**Висновок по розділу 2.** Підтверджено агреговані факти з GSC (зокрема 6 кліків, 17 показів, CTR 35.3%, позиція 2.4 за 3 місяці) і працездатність GA4-трекінгу (`page_view = 25` у Realtime на 2026-04-22). Для правдивого page-level та query-level аналізу все ще потрібні офіційні експорти GSC/GA4; до їх отримання детальні числові поля позначені як `N/A`.
+**Висновок по розділу 2.** Підтверджено реальні дані з експорту GSC (`Запити.csv`, `Сторінки.csv`, `Пристрої.csv`, дата експорту 2026-04-22) та часткові GA4-метрики з `download2.csv` (2026-04-22 - 2026-04-23), а також працездатність трекінгу в Realtime (`page_view = 25` на 2026-04-22). Для повного закриття розділу 2 бракує окремих експортів із GSC порівнянням періодів (MoM) і GA4 по `google / organic` для всіх 10 URL та event-level конверсій.
