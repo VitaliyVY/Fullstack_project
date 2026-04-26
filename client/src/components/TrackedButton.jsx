@@ -1,8 +1,9 @@
 import { useState } from 'react';
 
 /**
- * Google Tag Manager dataLayer tracking hook
- * Ensures dataLayer exists before pushing data
+ * Reusable hook to safely push data to window.dataLayer
+ * Ensures dataLayer exists before pushing
+ * Works in browser and avoids SSR errors
  */
 const useDataLayerPush = () => {
   const pushToDataLayer = (data) => {
@@ -16,29 +17,82 @@ const useDataLayerPush = () => {
 };
 
 /**
- * Example component with GTM tracking
+ * Refactored component with GTM tracking for form and article clicks
  */
 export default function TrackedButton() {
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const pushToDataLayer = useDataLayerPush();
 
-  const handleClick = () => {
-    // Push event to dataLayer
+  const handleFormSubmit = () => {
+    // Track form_submit event
     pushToDataLayer({
-      event: 'button_click',
-      button_name: 'submit_form',
+      event: 'form_submit',
+      form_name: 'contact_form',
     });
 
-    setIsSubmitted(true);
+    setFormSubmitted(true);
+  };
+
+  const handleRelatedArticleClick = (articleName) => {
+    // Track click_related_article event
+    pushToDataLayer({
+      event: 'click_related_article',
+      article_name: articleName,
+    });
   };
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={isSubmitted}
-      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-    >
-      {isSubmitted ? 'Submitted!' : 'Submit Form'}
-    </button>
+    <div className="p-4 space-y-6">
+      {/* Contact Form Section */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleFormSubmit();
+        }}
+        className="space-y-4"
+      >
+        <h2 className="text-lg font-semibold">Contact Form</h2>
+        <input
+          type="text"
+          placeholder="Your name"
+          className="w-full px-3 py-2 border rounded"
+        />
+        <input
+          type="email"
+          placeholder="Your email"
+          className="w-full px-3 py-2 border rounded"
+        />
+        <button
+          type="submit"
+          disabled={formSubmitted}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+        >
+          {formSubmitted ? 'Submitted!' : 'Submit Form'}
+        </button>
+      </form>
+
+      {/* Related Articles Section */}
+      <div className="space-y-2">
+        <h2 className="text-lg font-semibold">Related Articles</h2>
+        <ul className="space-y-2">
+          <li>
+            <button
+              onClick={() => handleRelatedArticleClick('Getting Started with React')}
+              className="text-blue-600 hover:underline text-left"
+            >
+              Getting Started with React
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleRelatedArticleClick('Advanced JavaScript Patterns')}
+              className="text-blue-600 hover:underline text-left"
+            >
+              Advanced JavaScript Patterns
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
   );
 }
